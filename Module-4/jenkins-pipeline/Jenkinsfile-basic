@@ -1,0 +1,18 @@
+pipeline {
+  agent any
+  stages {
+    stage('git pull') {
+      steps {
+        // Git-URL will replace by sed command before RUN
+        git url: 'Git-URL', branch: 'main'
+      }
+    }
+    stage('k8s deploy'){
+      steps {
+        withKubeConfig([credentialsId: 'k8s-auth', serverUrl: 'https://192.168.1.10:6443']) {
+          sh 'kubectl apply -f deployment.yaml'
+        }
+      }
+    }
+  }
+}
