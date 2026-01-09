@@ -1,0 +1,19 @@
+# Jenkins Helm Chart 커스텀 values
+# 사용법: helm install jenkins edu/jenkins -f values-jenkins.yaml
+
+controller:
+  serviceType: LoadBalancer
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+persistence:
+  enabled: true
+  # storageClass 생략 시 기본 StorageClass 사용
+  # - 바닐라 K8s: managed-nfs-storage
+  # - GKE: standard-rwo
+  size: 10Gi

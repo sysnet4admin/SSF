@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-ip
+  labels:
+    app: echo-ip
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echo-ip
+  template:
+    metadata:
+      labels:
+        app: echo-ip
+    spec:
+      containers:
+      - name: echo-ip
+        image: sysnet4admin/echo-ip
+        ports:
+        - containerPort: 80
