@@ -35,20 +35,13 @@ cd docker/
 ```bash
 cd harbor/
 
-# 1단계: PKI 인증서 생성 및 배포
-cd 1.harbor_pki/
-./1-1.create_certs.sh
-./1-2.deploy_certs.sh
+# 통합 설치 (권장)
+./install-harbor.sh
 
-# 2단계: Harbor 다운로드 및 설정
-cd ../2.harbor/
-./2-1.get_harbor.sh
-./2-2.modify_config.sh
-
-# 3단계: Harbor 준비 및 실행
-cd /opt/harbor
-./2-3.prepare
-./2-4.install.sh
+# 또는 단계별 설치
+# cd 1.harbor_pki/ && ./1-1.create_certs.sh && ./1-2.deploy_certs.sh
+# cd ../2.harbor/ && ./2-1.get_harbor.sh && ./2-2.modify_config.sh
+# cd /opt/harbor && ./2-3.prepare && ./2-4.install.sh
 ```
 
 ### 3. Harbor 접속 확인
