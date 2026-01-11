@@ -14,7 +14,7 @@ JV_OPT1="-Duser.timezone=Asia/Seoul"
 JV_OPT2="-Dcasc.jenkins.config=$JK_CFG/jcasc/jenkins-config.yaml"
 JV_OPT3="-Dhudson.model.DownloadService.noSignatureCheck=true"
 
-helm install jenkins edu/jenkins \
+helm upgrade --install jenkins edu/jenkins \
   --namespace ci-cd \
   --create-namespace \
   --set controller.admin.password=admin \

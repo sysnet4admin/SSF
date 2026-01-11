@@ -8,7 +8,7 @@
 
 set -e
 
-helm install grafana-stack edu/grafana-stack \
+helm upgrade --install grafana-stack edu/grafana-stack \
   --namespace monitoring \
   --create-namespace \
   --set loki.enabled=true \

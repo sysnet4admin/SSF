@@ -14,7 +14,7 @@
 
 set -e
 
-helm install prometheus-stack edu/kube-prometheus-stack \
+helm upgrade --install prometheus-stack edu/kube-prometheus-stack \
   --namespace monitoring \
   --create-namespace \
   --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false \

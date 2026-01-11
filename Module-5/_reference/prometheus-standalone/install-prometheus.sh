@@ -7,7 +7,7 @@
 
 set -e
 
-helm install prometheus edu/prometheus \
+helm upgrade --install prometheus edu/prometheus \
   --namespace monitoring \
   --create-namespace \
   --set prometheus-pushgateway.enabled=false \

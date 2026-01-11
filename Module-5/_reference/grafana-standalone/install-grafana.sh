@@ -11,7 +11,7 @@ set -e
 # External IP 확인 (Grafana root_url 설정용)
 GRAFANA_IP=$(kubectl get svc prometheus-server -n monitoring -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "localhost")
 
-helm install grafana edu/grafana \
+helm upgrade --install grafana edu/grafana \
   --namespace monitoring \
   --create-namespace \
   --set securityContext.runAsUser=1000 \
