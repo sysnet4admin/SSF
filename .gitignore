@@ -16,3 +16,11 @@
 # Temporary files
 *.tmp
 *.temp
+
+# PPT files
+ppt/
+pptx/
+
+# Python
+__pycache__/
+*.pyc
