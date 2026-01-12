@@ -43,7 +43,7 @@ kubectl get svc -n monitoring
 
 ### 3. Prometheus 접속
 
-- URL: `http://<PROMETHEUS-EXTERNAL-IP>:9090`
+- URL: `http://<PROMETHEUS-EXTERNAL-IP>` (포트 80)
 - Graph 탭에서 PromQL 쿼리 테스트
 
 ### 4. Grafana 접속
