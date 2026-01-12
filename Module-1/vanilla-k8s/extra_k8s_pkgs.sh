@@ -65,8 +65,9 @@ METALLB_BASE="https://raw.githubusercontent.com/metallb/metallb/${METALLB_VERSIO
 
 kubectl apply -f ${METALLB_BASE}/metallb-native.yaml
 
-# Wait for MetalLB to be ready, then apply L2 configuration
-(sleep 60 && cat <<EOF | kubectl apply -f -
+# Wait for MetalLB to be ready, then apply L2 configuration (with retry)
+nohup bash -c '
+METALLB_L2_CONFIG=$(cat <<EOF
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
@@ -82,7 +83,31 @@ spec:
   addresses:
   - 192.168.1.11-192.168.1.99
 EOF
-)&
+)
+
+# Wait for MetalLB controller to be ready
+for i in {1..30}; do
+  if kubectl get deploy -n metallb-system controller -o jsonpath="{.status.readyReplicas}" 2>/dev/null | grep -q "1"; then
+    echo "MetalLB controller is ready"
+    break
+  fi
+  echo "Waiting for MetalLB controller... ($i/30)"
+  sleep 10
+done
+
+# Apply L2 configuration with retry
+for i in {1..10}; do
+  if echo "$METALLB_L2_CONFIG" | kubectl apply -f - 2>&1; then
+    echo "MetalLB L2 configuration applied successfully"
+    exit 0
+  fi
+  echo "Retrying MetalLB L2 configuration... ($i/10)"
+  sleep 15
+done
+
+echo "Failed to apply MetalLB L2 configuration after 10 retries"
+exit 1
+' > /tmp/metallb-l2-setup.log 2>&1 &
 
 #######################
 # Helm Installation
