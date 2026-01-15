@@ -3,6 +3,7 @@
 
 # macOS
 .DS_Store
+*.textClipping
 
 # IDE
 .idea/
@@ -24,3 +25,8 @@ pptx/
 # Python
 __pycache__/
 *.pyc
+
+# PPT generation scripts
+ppt_utils.py
+session*.py
+scripts/
