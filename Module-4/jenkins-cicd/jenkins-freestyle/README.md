@@ -9,12 +9,13 @@ Docker 빌드 → Harbor Push → 쿠버네티스 배포를 수행하는 Freesty
 > - AMD64: Harbor v2.10.0
 > - ARM64: Harbor v2.4.3 (seongjumoon/harbor ARM64 이미지 사용)
 
-## 폴더 구조
-| 폴더/파일 | 설명 |
-|-----------|------|
-| `echo-ip-101.freestyle` | Freestyle 빌드 스크립트 |
-| `docker/` | Docker 설치 스크립트 |
-| `harbor/` | Harbor 레지스트리 설치 |
+## Lab Files
+| File | Description |
+|------|-------------|
+| `GUI-GUIDE.md` | Step-by-step Jenkins GUI guide |
+| `echo-ip-101.freestyle` | Freestyle build script |
+| `docker/` | Docker installation scripts |
+| `harbor/` | Harbor registry installation |
 
 ## 사전 구성 순서
 
@@ -65,20 +66,9 @@ cd harbor/
 
 ### Jenkins Freestyle Job 생성
 
-1. Jenkins → 새로운 Item → Freestyle project
-2. 빌드 환경 → Execute shell에 아래 내용 입력:
+See `GUI-GUIDE.md` for detailed step-by-step instructions.
 
-```bash
-docker build -t 192.168.1.10:8443/library/echo-ip .
-docker login --username admin --password admin 192.168.1.10:8443
-docker push 192.168.1.10:8443/library/echo-ip
-kubectl create deployment fs-echo-ip --image=192.168.1.10:8443/library/echo-ip -n default
-kubectl expose deployment fs-echo-ip --type=LoadBalancer --name=fs-echo-ip-svc --port=80 -n default
-```
-
-3. 저장 → Build Now
-
-> **참고**: Harbor 주소와 인증 정보는 환경에 맞게 수정하세요.
+> **Note**: Modify Harbor address and credentials according to your environment.
 
 ## 삭제
 

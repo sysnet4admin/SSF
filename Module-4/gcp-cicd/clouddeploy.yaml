@@ -1,0 +1,16 @@
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+  name: demo-pipeline
+description: Demo CI/CD Pipeline
+serialPipeline:
+  stages:
+    - targetId: dev-cluster
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: dev-cluster
+description: Development GKE Cluster
+gke:
+  cluster: projects/PROJECT_ID/locations/REGION/clusters/CLUSTER_NAME

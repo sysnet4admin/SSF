@@ -1,84 +1,141 @@
-# Module 4. 지속적인 배포와 통합 (CI/CD)
+# Module 4. CI/CD
 
-## 개요
-쿠버네티스 환경에서 Jenkins를 활용한 CI/CD 파이프라인 구축 실습입니다.
+## Overview
 
-> **사전 요구사항**: Module-3에서 Helm과 edu 저장소가 설치되어 있어야 합니다.
+CI/CD pipeline implementation on Kubernetes.
 
-## 환경별 실습 범위
+> **Prerequisites**: Helm and edu repository must be installed from Module-3.
 
-| 폴더 | 설명 | GKE | 바닐라 K8s |
-|------|------|:---:|:----------:|
-| `jenkins-install/` | Jenkins Helm 설치 | ✅ | ✅ |
-| `jenkins-pipeline/` | GitOps 파이프라인 | ✅ | ✅ |
-| `jenkins-freestyle-vanilla-k8s/` | Freestyle 빌드 (Docker+Harbor) | ❌ | ✅ |
+## Folder Structure
 
-## 학습 목표
-- CI/CD 개념 이해
-- GitOps 워크플로우 이해
-- Jenkins Freestyle 빌드 (바닐라 K8s)
+```
+Module-4/
+├── gcp-cicd/               # GKE 환경 (Cloud Build + Cloud Deploy)
+└── jenkins-cicd/           # Vanilla K8s 환경 (Jenkins)
+    ├── jenkins-install/
+    ├── jenkins-freestyle/
+    ├── jenkins-pipeline/
+    ├── jenkins-gitops/
+    └── _reference/
+```
 
-## 폴더 구조
-| 폴더 | 설명 |
-|------|------|
-| `jenkins-install/` | Jenkins Helm 설치 |
-| `jenkins-pipeline/` | GitOps 파이프라인 (GKE/바닐라 모두) |
-| `jenkins-freestyle-vanilla-k8s/` | Freestyle 빌드 + Docker + Harbor (바닐라 전용) |
-| `_reference/` | 추가 Jenkinsfile 예제 |
+## Lab by Platform
 
-## 실습 순서
+| Platform | Recommended | Alternative |
+|----------|-------------|-------------|
+| **GKE** | `gcp-cicd/` (Cloud Build + Cloud Deploy) | `jenkins-cicd/` (Jenkins) |
+| **Vanilla K8s** | `jenkins-cicd/` | - |
 
-### 1. Jenkins 설치
+> **Note**: Jenkins는 GKE에서도 사용 가능합니다. 시간이 충분하다면 `jenkins-cicd/jenkins-pipeline/`을 GKE에서 실습해 보세요.
+
+---
+
+## GKE Lab
+
+### Option 1: Cloud Build + Cloud Deploy (권장)
+
+GCP 네이티브 CI/CD로 빠르게 실습합니다.
 
 ```bash
-cd Module-4/jenkins-install
+cd Module-4/gcp-cicd
+./setup.sh
+
+# Manual build
+gcloud builds submit --config=cloudbuild.yaml --region=YOUR_REGION
+
+# Check deployment
+kubectl get pods -l app=demo-app
+```
+
+자세한 내용은 `gcp-cicd/README.md` 참조.
+
+### Option 2: Jenkins (시간 여유 시)
+
+Jenkins를 GKE에 설치하여 사용할 수도 있습니다.
+
+```bash
+cd Module-4/jenkins-cicd/jenkins-install
 ./install-jenkins.sh
 
-# Pod 상태 확인 (Ready까지 2-3분 소요)
+# jenkins-pipeline 실습 진행
+```
+
+---
+
+## Vanilla K8s Lab
+
+### 1. Install Jenkins
+
+```bash
+cd Module-4/jenkins-cicd/jenkins-install
+./install-jenkins.sh
+
+# Check Pod status
 kubectl get pods -n ci-cd -w
 ```
 
-### 2. Jenkins 접속
+### 2. Access Jenkins
 
 ```bash
-# External IP 확인
 kubectl get svc jenkins -n ci-cd
 ```
 
 - URL: `http://<EXTERNAL-IP>`
-- 계정: admin / admin
+- Credentials: admin / admin
 
-### 3. CI/CD 실습
+### 3. CI/CD Labs
 
-**GKE 환경:**
-- `jenkins-pipeline/` → GitOps 파이프라인 실습
+| Lab | Description |
+|-----|-------------|
+| `jenkins-freestyle/` | Docker + Harbor + Freestyle build |
+| `jenkins-pipeline/` | Groovy-based pipeline |
+| `jenkins-gitops/` | GitOps with Poll SCM |
 
-**바닐라 K8s 환경:**
-- `jenkins-freestyle-vanilla-k8s/` → Docker + Harbor 구성 후 Freestyle 빌드
-- `jenkins-pipeline/` → GitOps 파이프라인 실습
+---
 
-## CI/CD 개념
+## CI/CD Concepts
+
+### GKE vs Vanilla Comparison
+
+| Item | GKE (Cloud Build) | Vanilla (Jenkins) |
+|------|-------------------|-------------------|
+| CI Tool | Cloud Build | Jenkins Pipeline |
+| CD Tool | Cloud Deploy | kubectl |
+| Image Registry | Artifact Registry | Harbor |
+| Git Repository | Cloud Source Repos | GitHub |
+| GitOps Trigger | Cloud Build Trigger | Poll SCM |
 
 ### CI (Continuous Integration)
-- 코드 변경 시 자동으로 빌드 및 테스트
-- 빠른 피드백과 품질 관리
+- Automatic build and test on code changes
+- Quick feedback and quality management
 
 ### CD (Continuous Delivery/Deployment)
-- 검증된 코드를 자동으로 배포
-- 안정적이고 반복 가능한 배포 프로세스
+- Automatic deployment of verified code
+- Stable and repeatable deployment process
 
 ### GitOps
-- Git을 Single Source of Truth로 사용
-- 선언적 인프라 관리
-- 쿠버네티스와 자연스러운 통합
+- Git as Single Source of Truth
+- Declarative infrastructure management
+- Natural integration with Kubernetes
 
-## 삭제
+---
 
+## Cleanup
+
+### GKE (Cloud Build)
+```bash
+cd Module-4/gcp-cicd
+# See README.md for cleanup commands
+```
+
+### Jenkins
 ```bash
 helm uninstall jenkins -n ci-cd
 kubectl delete namespace ci-cd
 ```
 
-## 참고 자료
-- [Jenkins 공식 문서](https://www.jenkins.io/doc/)
-- [깃옵스(GitOps)를 여행하려는 입문자를 위한 안내서](https://yozm.wishket.com/magazine/detail/2010/)
+## Reference
+
+- [Cloud Build Documentation](https://cloud.google.com/build/docs)
+- [Cloud Deploy Documentation](https://cloud.google.com/deploy/docs)
+- [Jenkins Documentation](https://www.jenkins.io/doc/)
