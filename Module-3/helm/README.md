@@ -6,6 +6,45 @@
 > **참고**: Helm은 클러스터에 사전 설치되어 있습니다.
 > edu 저장소도 이미 추가되어 있어 바로 사용 가능합니다.
 
+## ⚠️ Jenkins 설치 시 주의사항
+
+### 문제 상황
+edu/jenkins 차트를 `helm install jenkins edu/jenkins`로 직접 설치하면 플러그인 버전 충돌 발생:
+```
+Plugin credentials requires a greater version of Jenkins (2.479.1) than 2.440.3
+Plugin kubernetes depends on configuration-as-code:1850, but there is an older version...
+```
+
+### 문제 원인
+- edu/jenkins 차트의 기본 Jenkins 버전: **2.440.3-jdk17**
+- 공식 Jenkins 업데이트 센터의 플러그인들이 더 높은 Jenkins 버전 요구
+- Jenkins 버전을 임의로 올리면 또 다른 플러그인 의존성 충돌 발생
+
+### 해결 방법
+**Module-4/jenkins-cicd/jenkins-install/install-jenkins.sh 사용** (권장)
+
+이 스크립트는 `JENKINS_UC` 환경변수로 k8s-edu의 호환 플러그인 업데이트 센터를 지정합니다:
+```bash
+--set controller.initContainerEnv[0].name=JENKINS_UC
+--set controller.initContainerEnv[0].value=https://raw.githubusercontent.com/k8s-edu/.../update-center.json
+```
+
+```bash
+# Jenkins 설치
+cd ~/SSF/Module-4/jenkins-cicd/jenkins-install
+bash install-jenkins.sh
+
+# 접속 정보
+kubectl get svc -n ci-cd
+# URL: http://<EXTERNAL-IP>
+# 계정: admin / admin
+```
+
+### ❌ 하지 말 것
+- Jenkins 버전을 임의로 변경하지 마세요 (예: 2.492.1-lts-jdk17)
+- values 파일만으로 edu/jenkins 설치하지 마세요
+- 공식 jenkins/jenkins 차트와 혼용하지 마세요
+
 ## Kustomize vs Helm
 
 | 구분 | Kustomize | Helm |

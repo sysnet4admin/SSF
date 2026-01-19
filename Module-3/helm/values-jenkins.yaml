@@ -1,5 +1,9 @@
-# Jenkins Helm Chart 커스텀 values
-# 사용법: helm install jenkins edu/jenkins -f values-jenkins.yaml
+# Jenkins Helm Chart 커스텀 values 예제
+#
+# ⚠️ 주의: edu/jenkins 차트를 단독으로 사용하면 플러그인 버전 충돌이 발생합니다.
+# Jenkins 설치는 Module-4/jenkins-cicd/jenkins-install/install-jenkins.sh를 사용하세요.
+#
+# 이 파일은 Helm values 파일 형식의 참고용 예제입니다.
 
 controller:
   serviceType: LoadBalancer
