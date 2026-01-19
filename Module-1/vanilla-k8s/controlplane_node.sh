@@ -51,6 +51,10 @@ fi
 EOF
 chmod +x /usr/local/bin/claude-run
 
+# Clone SSF repository
+git clone https://github.com/sysnet4admin/SSF.git /root/SSF
+echo "SSF repository cloned to /root/SSF"
+
 # alias kubectl to k and setup aliases
 echo 'alias k=kubectl'               >> ~/.bashrc
 echo "alias ka='kubectl apply -f'"   >> ~/.bashrc
