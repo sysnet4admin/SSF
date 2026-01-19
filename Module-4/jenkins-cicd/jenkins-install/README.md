@@ -23,6 +23,7 @@ helm repo list
 # 출력 예시:
 # NAME    URL
 # edu     https://k8s-edu.github.io/Bkv2_main/helm-charts/
+# jenkins https://charts.jenkins.io (설치 시 자동 추가됨)
 ```
 
 ### 2. Jenkins 설치
@@ -63,7 +64,8 @@ kubectl delete namespace ci-cd
 
 | 설정 | 값 | 설명 |
 |------|-----|------|
-| `controller.image.tag` | 2.440.3-jdk17 | Jenkins 버전 |
+| Helm Chart | edu/jenkins | k8s-edu에서 관리하는 호환 플러그인 |
+| `controller.image.tag` | 2.440.3-jdk17 | Jenkins 버전 (non-LTS) |
 | `controller.admin.password` | admin | 초기 비밀번호 |
 | `controller.serviceType` | LoadBalancer | 외부 접근용 |
 | `controller.servicePort` | 80 | 서비스 포트 |
