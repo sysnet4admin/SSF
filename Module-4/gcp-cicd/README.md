@@ -6,10 +6,20 @@ GCP 네이티브 CI/CD 파이프라인 실습입니다.
 
 > **Supported Platform**: GKE only
 
+## ⚠️ Cloud Source Repositories 제한 사항
+
+**2024년 6월 17일 이후 신규 프로젝트에서 Cloud Source Repositories(CSR)를 사용할 수 없습니다.**
+
+이는 무료 체험 계정의 제한이 아닌 GCP 정책 변경입니다:
+- 이전에 CSR을 사용하지 않은 조직/프로젝트는 새로 활성화 불가
+- 공식 대안: GitHub 연동 또는 수동 빌드
+
+**따라서 본 실습은 수동 빌드 방식으로 진행합니다.**
+
 ## Architecture
 
 ```
-[Cloud Source Repos] → [Cloud Build] → [Artifact Registry] → [Cloud Deploy] → [GKE]
+[Local Source] → [Cloud Build] → [Artifact Registry] → [Cloud Deploy] → [GKE]
 ```
 
 ## Lab Files
@@ -30,8 +40,8 @@ GCP 네이티브 CI/CD 파이프라인 실습입니다.
 | CI 도구 | Jenkins Pipeline | Cloud Build |
 | CD 도구 | kubectl | Cloud Deploy |
 | 이미지 저장소 | Harbor | Artifact Registry |
-| Git 저장소 | GitHub | Cloud Source Repos |
-| GitOps 트리거 | Poll SCM | Cloud Build Trigger |
+| Git 저장소 | GitHub | 로컬 소스 (수동 빌드) |
+| 빌드 트리거 | Poll SCM | 수동 실행 (`gcloud builds submit`) |
 
 ---
 
@@ -64,70 +74,26 @@ kubectl get pods -l app=demo-app
 kubectl get svc demo-app-svc
 ```
 
-### Step 3: Setup GitOps with CSR (15분)
+### Step 3: Update Application & Rebuild (10분)
 
-#### 3.1 Clone CSR Repository
+> **Note**: Cloud Source Repositories가 비활성화되어 수동 빌드 방식으로 진행합니다.
 
-```bash
-# CSR 저장소 Clone
-cd ~
-gcloud source repos clone demo-app
-cd demo-app
-```
-
-#### 3.2 Copy Source Files
+#### 3.1 Modify Application
 
 ```bash
-# 실습 파일 복사
-cp -r ~/Module-4/gcp-cicd/* .
-
-# 확인
-ls -la
-```
-
-#### 3.3 Initial Push
-
-```bash
-git add .
-git commit -m "initial commit"
-git push origin main
-```
-
-#### 3.4 Create Cloud Build Trigger
-
-```bash
-# Trigger 생성
-gcloud builds triggers create cloud-source-repositories \
-    --repo=demo-app \
-    --branch-pattern=^main$ \
-    --build-config=cloudbuild.yaml \
-    --region=YOUR_REGION \
-    --name=demo-app-trigger
-```
-
-### Step 4: Test GitOps (10분)
-
-#### 4.1 Modify Application
-
-```bash
-cd ~/demo-app
+cd ~/SSF/Module-4/gcp-cicd
 
 # 버전 변경
 sed -i 's/v1/v2/' app/index.html
 cat app/index.html | grep version
 ```
 
-#### 4.2 Push Changes
+#### 3.2 Manual Rebuild & Deploy
 
 ```bash
-git add .
-git commit -m "update to v2"
-git push origin main
-```
+# 수동 빌드 재실행
+gcloud builds submit --config=cloudbuild.yaml --region=YOUR_REGION
 
-#### 4.3 Verify Auto-Deployment
-
-```bash
 # Cloud Build 실행 확인
 gcloud builds list --region=YOUR_REGION --limit=2
 
@@ -139,6 +105,11 @@ kubectl get svc demo-app-svc
 # EXTERNAL-IP로 브라우저 접속하여 v2 확인
 ```
 
+### (참고) GitHub 연동 GitOps
+
+Cloud Source Repositories 대신 GitHub을 사용하여 GitOps를 구성할 수 있습니다.
+자세한 내용은 `_reference/github-trigger.md`를 참고하세요.
+
 ---
 
 ## Console URLs
@@ -148,24 +119,17 @@ kubectl get svc demo-app-svc
 | Cloud Build | https://console.cloud.google.com/cloud-build/builds |
 | Cloud Deploy | https://console.cloud.google.com/deploy/delivery-pipelines |
 | Artifact Registry | https://console.cloud.google.com/artifacts |
-| Cloud Source Repos | https://source.cloud.google.com |
 
 ---
 
 ## Cleanup
 
 ```bash
-# Trigger 삭제
-gcloud builds triggers delete demo-app-trigger --region=YOUR_REGION
-
 # Cloud Deploy 파이프라인 삭제
 gcloud deploy delivery-pipelines delete demo-pipeline --region=YOUR_REGION --force
 
 # Artifact Registry 삭제
 gcloud artifacts repositories delete cicd-repo --location=YOUR_REGION
-
-# CSR 삭제
-gcloud source repos delete demo-app
 
 # K8s 리소스 삭제
 kubectl delete -f k8s/deployment.yaml

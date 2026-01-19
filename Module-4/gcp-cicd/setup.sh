@@ -30,28 +30,26 @@ echo -e "${YELLOW}Cluster: ${CLUSTER_NAME}${NC}"
 echo ""
 
 # 1. Enable APIs
-echo -e "${GREEN}[1/5] Enabling APIs...${NC}"
+echo -e "${GREEN}[1/4] Enabling APIs...${NC}"
 gcloud services enable \
     cloudbuild.googleapis.com \
     clouddeploy.googleapis.com \
     artifactregistry.googleapis.com \
-    sourcerepo.googleapis.com \
     container.googleapis.com
 
+# Note: Cloud Source Repositories (sourcerepo.googleapis.com) is not available
+# for new projects created after June 17, 2024.
+
 # 2. Create Artifact Registry
-echo -e "${GREEN}[2/5] Creating Artifact Registry...${NC}"
+echo -e "${GREEN}[2/4] Creating Artifact Registry...${NC}"
 gcloud artifacts repositories create cicd-repo \
     --repository-format=docker \
     --location=${REGION} \
     --description="CI/CD Demo Repository" \
     2>/dev/null || echo "Repository already exists"
 
-# 3. Create Cloud Source Repository
-echo -e "${GREEN}[3/5] Creating Cloud Source Repository...${NC}"
-gcloud source repos create demo-app 2>/dev/null || echo "Repository already exists"
-
-# 4. Update clouddeploy.yaml with actual values
-echo -e "${GREEN}[4/5] Configuring Cloud Deploy...${NC}"
+# 3. Update clouddeploy.yaml with actual values
+echo -e "${GREEN}[3/4] Configuring Cloud Deploy...${NC}"
 sed -i.bak \
     -e "s/PROJECT_ID/${PROJECT_ID}/g" \
     -e "s/REGION/${REGION}/g" \
@@ -59,8 +57,8 @@ sed -i.bak \
     clouddeploy.yaml
 rm -f clouddeploy.yaml.bak
 
-# 5. Create Cloud Deploy pipeline
-echo -e "${GREEN}[5/5] Creating Cloud Deploy pipeline...${NC}"
+# 4. Create Cloud Deploy pipeline
+echo -e "${GREEN}[4/4] Creating Cloud Deploy pipeline...${NC}"
 gcloud deploy apply --file=clouddeploy.yaml --region=${REGION}
 
 # Grant Cloud Build permission to deploy
@@ -83,5 +81,5 @@ echo "Next steps:"
 echo "1. Run manual build: gcloud builds submit --config=cloudbuild.yaml --region=${REGION}"
 echo "2. Check deployment: kubectl get pods"
 echo ""
-echo "CSR Repository URL:"
-echo "https://source.cloud.google.com/${PROJECT_ID}/demo-app"
+echo -e "${YELLOW}Note: Cloud Source Repositories is not available for new projects.${NC}"
+echo -e "${YELLOW}Use manual build (gcloud builds submit) for CI/CD workflow.${NC}"
