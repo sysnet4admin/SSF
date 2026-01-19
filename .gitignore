@@ -25,8 +25,14 @@ pptx/
 # Python
 __pycache__/
 *.pyc
+.venv/
+venv/
+.env
 
 # PPT generation scripts
 ppt_utils.py
 session*.py
 scripts/
+
+# Backup folders (Gen1, Gen2, etc.)
+Gen*/
