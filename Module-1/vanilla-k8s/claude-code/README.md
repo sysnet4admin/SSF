@@ -100,8 +100,29 @@ fi
 
 ---
 
+## SSF 저장소 위치
+
+SSF 저장소는 `/opt/SSF`에 클론되어 있으며, 모든 유저가 접근 가능합니다:
+
+| 경로 | 설명 |
+|------|------|
+| `/opt/SSF` | 실제 저장소 위치 (모든 유저 접근 가능) |
+| `/root/SSF` | symlink → /opt/SSF |
+| `/home/vagrant/SSF` | symlink → /opt/SSF |
+
+Claude Code 실행 시 권장 디렉토리:
+```bash
+cd /opt/SSF  # 또는 ~/SSF (vagrant 유저)
+claude
+```
+
+> **참고**: root 전용 디렉토리(예: `/root`)에서 Claude를 실행하면 자동으로 `/home/vagrant`로 이동합니다.
+
+---
+
 ## 참고
 
 - kubeconfig는 root의 `~/.kube/config`에 저장됨
 - Claude Code는 vagrant 유저 계정에서 실행되므로 파일 접근 권한에 주의
 - API 키는 vagrant 유저의 `~/.bashrc`에만 저장됨
+- SSF 저장소는 `/opt/SSF`에 위치 (모든 유저 접근 가능)
