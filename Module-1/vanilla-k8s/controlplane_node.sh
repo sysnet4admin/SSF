@@ -44,16 +44,29 @@ cat <<'EOF' > /usr/local/bin/claude-run
 #!/bin/bash
 # Claude Code wrapper to run as vagrant user (avoid root restrictions)
 if [ "$(id -u)" = "0" ]; then
-    exec su - vagrant -c "claude $*"
+    WORK_DIR="$PWD"
+    # Check if vagrant user can access current directory, fallback to /home/vagrant
+    if ! su vagrant -c "test -r \"$WORK_DIR\"" 2>/dev/null; then
+        WORK_DIR="/home/vagrant"
+        echo "Note: Cannot access $PWD, starting from $WORK_DIR"
+    fi
+    exec su vagrant -c "cd \"$WORK_DIR\" && claude $*"
 else
     exec claude "$@"
 fi
 EOF
 chmod +x /usr/local/bin/claude-run
 
-# Clone SSF repository
-git clone https://github.com/sysnet4admin/SSF.git /root/SSF
-echo "SSF repository cloned to /root/SSF"
+# Clone SSF repository to /opt (accessible by all users)
+git clone https://github.com/sysnet4admin/SSF.git /opt/SSF
+chmod -R o+rX /opt/SSF
+echo "SSF repository cloned to /opt/SSF"
+
+# Create symlinks for both root and vagrant users
+ln -s /opt/SSF /root/SSF
+ln -s /opt/SSF /home/vagrant/SSF
+chown -h vagrant:vagrant /home/vagrant/SSF
+echo "SSF symlinks created at /root/SSF and /home/vagrant/SSF"
 
 # alias kubectl to k and setup aliases
 echo 'alias k=kubectl'               >> ~/.bashrc
