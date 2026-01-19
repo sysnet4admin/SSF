@@ -91,6 +91,7 @@ echo 'PS1="[\u@\h \W]\$(kube_ps1)\$ "' >> ~/.bashrc
 echo ''                              >> ~/.bashrc
 echo '# Claude Code alias (run as vagrant user)' >> ~/.bashrc
 echo 'alias claude=claude-run'        >> ~/.bashrc
+echo 'alias claude-skip="claude-run --dangerously-skip-permissions"' >> ~/.bashrc
 
 
 
