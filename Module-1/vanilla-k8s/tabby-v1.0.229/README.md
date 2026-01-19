@@ -31,7 +31,7 @@ winget install Eugeny.Tabby
 
 | 프로필 | 호스트 | 포트 | 설명 |
 |--------|--------|------|------|
-| console | 127.0.0.1 | 60241 | Console (kubectl + Claude Code) |
+| console | 127.0.0.1 | 60210 | Console (kubectl + Claude Code) |
 | cp-k8s | 127.0.0.1 | 60010 | Control Plane |
 | w1-k8s | 127.0.0.1 | 60101 | Worker 1 |
 | w2-k8s | 127.0.0.1 | 60102 | Worker 2 |

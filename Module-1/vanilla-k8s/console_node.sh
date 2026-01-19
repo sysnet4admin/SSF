@@ -32,8 +32,14 @@ echo "[2/6] Copying kubeconfig from cp-k8s..."
 # Create .kube directory for vagrant user
 mkdir -p /home/vagrant/.kube
 
-# Copy kubeconfig from cp-k8s using sshpass
-sshpass -p 'vagrant' scp -o StrictHostKeyChecking=no root@192.168.1.10:/etc/kubernetes/admin.conf /home/vagrant/.kube/config
+# Copy kubeconfig from cp-k8s using sshpass (retry logic for initial cluster setup)
+for i in {1..30}; do
+  if sshpass -p 'vagrant' scp -o StrictHostKeyChecking=no root@192.168.1.10:/etc/kubernetes/admin.conf /home/vagrant/.kube/config 2>/dev/null; then
+    break
+  fi
+  echo "Waiting for cp-k8s to be ready... (attempt $i/30)"
+  sleep 2
+done
 
 # Set ownership
 chown -R vagrant:vagrant /home/vagrant/.kube

@@ -204,7 +204,7 @@ profiles:
     icon: fas fa-terminal
     options:
       host: 127.0.0.1
-      port: 60241
+      port: 60210
       algorithms:
         hmac:
           - hmac-sha1
