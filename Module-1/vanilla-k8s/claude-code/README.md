@@ -2,21 +2,39 @@
 
 cp-k8s (Control Plane) 노드에서 Claude Code를 사용하기 위한 가이드입니다.
 
+**중요**: 모든 작업은 `vagrant` 유저로 진행합니다.
+
 ## 자동 설치
 
-cp-k8s 노드 배포 시 Claude Code가 자동으로 설치됩니다:
+cp-k8s 노드 배포 시 다음이 자동으로 설치됩니다:
 - Node.js 22
 - Claude Code CLI
-- claude-run wrapper (vagrant 유저로 실행)
+- kubectl, kubectx, kubens, fzf, kube-ps1
+- SSF repository (`~/SSF`)
+
+## 접속 방법
+
+### Tabby 또는 SSH로 직접 접속 (권장)
+
+```bash
+ssh -p 60010 vagrant@127.0.0.1
+# password: vagrant
+```
+
+### Vagrant SSH 사용
+
+```bash
+cd Module-1/vanilla-k8s
+vagrant ssh cp-k8s-1.35.0
+# → root로 로그인됨, vagrant로 전환 필요
+su - vagrant
+```
 
 ## API 키 설정
 
-cp-k8s 노드에 로그인 후:
+vagrant 유저로 로그인 후:
 
 ```bash
-# root에서 vagrant 유저로 전환
-su - vagrant
-
 # API 키 설정 스크립트 실행
 bash ~/SSF/Module-1/vanilla-k8s/claude-code/install.sh
 
@@ -37,15 +55,7 @@ bash ~/SSF/Module-1/vanilla-k8s/claude-code/install.sh
 
 ---
 
-## 수동 설정
-
-### 1. vagrant 유저로 전환
-
-```bash
-su - vagrant
-```
-
-### 2. API 키 영구 설정
+## 수동 API 키 설정
 
 ```bash
 echo 'export ANTHROPIC_API_KEY="sk-ant-xxxxx"' >> ~/.bashrc
@@ -57,35 +67,16 @@ source ~/.bashrc
 ## 사용법
 
 ```bash
-# root에서도 자동으로 vagrant 유저로 실행
-claude              # 대화형 모드
-claude "질문"      # 단일 질문
+# 대화형 모드
+claude
 
-# 또는 vagrant 유저로 직접 실행
-su - vagrant
+# 단일 질문
 claude "질문"
+
+# 권한 확인 건너뛰기 (빠른 실행)
+claude-skip
+claude-skip "질문"
 ```
-
----
-
-## Root 제한 회피 방법
-
-Claude Code는 root 계정에서 제한이 있어, `claude-run` wrapper script를 통해 자동으로 vagrant 유저로 전환됩니다:
-
-```bash
-# /usr/local/bin/claude-run (자동 생성)
-#!/bin/bash
-if [ "$(id -u)" = "0" ]; then
-    exec su - vagrant -c "claude $*"
-else
-    exec claude "$@"
-fi
-```
-
-따라서 root에서 `claude` 명령어를 실행하면:
-1. 자동으로 `claude-run`이 호출됨
-2. vagrant 유저로 전환되어 Claude 실행
-3. 모든 제한 없이 정상 작동
 
 ---
 
@@ -93,6 +84,8 @@ fi
 
 | 명령어 | 설명 |
 |--------|------|
+| `claude` | Claude Code 실행 |
+| `claude-skip` | `--dangerously-skip-permissions` 옵션으로 실행 |
 | `/help` | 도움말 |
 | `/clear` | 대화 초기화 |
 | `/compact` | 대화 요약 |
@@ -100,29 +93,31 @@ fi
 
 ---
 
-## SSF 저장소 위치
+## 설치된 도구 및 Aliases
 
-SSF 저장소는 `/opt/SSF`에 클론되어 있으며, 모든 유저가 접근 가능합니다:
+| Alias | 명령어 |
+|-------|--------|
+| `k` | kubectl |
+| `ka` | kubectl apply -f |
+| `kx` | kubectx (컨텍스트 전환) |
+| `kn` | kubens (namespace 전환) |
+| `claude-skip` | claude --dangerously-skip-permissions |
 
-| 경로 | 설명 |
+---
+
+## 주요 경로
+
+| 항목 | 경로 |
 |------|------|
-| `/opt/SSF` | 실제 저장소 위치 (모든 유저 접근 가능) |
-| `/root/SSF` | symlink → /opt/SSF |
-| `/home/vagrant/SSF` | symlink → /opt/SSF |
-
-Claude Code 실행 시 권장 디렉토리:
-```bash
-cd /opt/SSF  # 또는 ~/SSF (vagrant 유저)
-claude
-```
-
-> **참고**: root 전용 디렉토리(예: `/root`)에서 Claude를 실행하면 자동으로 `/home/vagrant`로 이동합니다.
+| kubeconfig | `~/.kube/config` |
+| SSF Repository | `~/SSF` |
+| Claude 설정 | `~/.claude/` |
 
 ---
 
 ## 참고
 
-- kubeconfig는 root의 `~/.kube/config`에 저장됨
-- Claude Code는 vagrant 유저 계정에서 실행되므로 파일 접근 권한에 주의
-- API 키는 vagrant 유저의 `~/.bashrc`에만 저장됨
-- SSF 저장소는 `/opt/SSF`에 위치 (모든 유저 접근 가능)
+- **모든 작업은 vagrant 유저로 진행** (GCP 인증, Claude Code 등)
+- kubeconfig는 vagrant 유저의 `~/.kube/config`에 저장됨
+- API 키는 vagrant 유저의 `~/.bashrc`에 저장됨
+- kube-ps1이 프롬프트에 현재 k8s 컨텍스트/namespace 표시

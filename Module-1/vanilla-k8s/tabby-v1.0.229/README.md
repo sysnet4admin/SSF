@@ -72,6 +72,8 @@ copy config.yaml "$env:APPDATA\tabby\config.yaml"
 - **Username**: vagrant
 - **Password**: vagrant
 
+> **중요**: 모든 작업(kubectl, Claude Code, GCP 인증 등)은 `vagrant` 유저로 진행합니다.
+
 ---
 
 ## 참고
