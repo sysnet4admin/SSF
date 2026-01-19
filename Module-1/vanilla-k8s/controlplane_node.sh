@@ -25,8 +25,5 @@ NAME:.metadata.name,IP:.status.podIP,STATUS:.status.phase,NODE:.spec.nodeName'" 
                                      >> ~/.bashrc
 echo 'complete -F __start_kubectl k' >> ~/.bashrc
 
-# Clone SSF repository for hands-on labs
-git clone https://github.com/sysnet4admin/SSF.git /root/SSF
-echo "SSF repository cloned to /root/SSF"
 
 

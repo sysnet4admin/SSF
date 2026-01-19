@@ -200,6 +200,56 @@ profiles:
     group: 쿠버네티스-클러스터(github_SysNet4Admin)
     id: ssh:custom:w3-k8s:9bf4212a-acd3-4e2c-84cc-19b1baf367e8
     color: '#8cb63c'
+  - type: ssh
+    icon: fas fa-terminal
+    options:
+      host: 127.0.0.1
+      port: 60241
+      algorithms:
+        hmac:
+          - hmac-sha1
+          - hmac-sha1-etm@openssh.com
+          - hmac-sha2-256
+          - hmac-sha2-256-etm@openssh.com
+          - hmac-sha2-512
+          - hmac-sha2-512-etm@openssh.com
+        kex:
+          - curve25519-sha256
+          - curve25519-sha256@libssh.org
+          - diffie-hellman-group-exchange-sha256
+          - diffie-hellman-group14-sha256
+          - diffie-hellman-group15-sha512
+          - diffie-hellman-group16-sha512
+          - diffie-hellman-group17-sha512
+          - diffie-hellman-group18-sha512
+          - ecdh-sha2-nistp256
+          - ecdh-sha2-nistp384
+          - ecdh-sha2-nistp521
+        cipher:
+          - aes128-ctr
+          - aes128-gcm
+          - aes128-gcm@openssh.com
+          - aes192-ctr
+          - aes256-ctr
+          - aes256-gcm
+          - aes256-gcm@openssh.com
+        serverHostKey:
+          - ecdsa-sha2-nistp256
+          - ecdsa-sha2-nistp384
+          - ecdsa-sha2-nistp521
+          - rsa-sha2-256
+          - rsa-sha2-512
+          - ssh-ed25519
+          - ssh-rsa
+      auth: password
+      privateKeys: []
+      forwardedPorts: []
+      scripts: []
+    weight: -1
+    name: console
+    group: 쿠버네티스-클러스터(github_SysNet4Admin)
+    id: ssh:custom:console:c8d2f1a3-9e4b-4c6d-8f7a-1b2c3d4e5f6a
+    color: '#e07b23'
 hotkeys:
   toggle-window:
     - Ctrl-Space

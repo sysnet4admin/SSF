@@ -1,37 +1,25 @@
 #!/bin/bash
-# Claude Code 설치 스크립트 (Ubuntu)
-# 사용법: bash install.sh
-
-set -e
+# Claude Code API 키 설정 스크립트
+# console 노드에서 실행: bash ~/SSF/Module-1/vanilla-k8s/claude-code/install.sh
 
 echo "=========================================="
-echo "  Claude Code 설치 (Ubuntu)"
+echo "  Claude Code API 키 설정"
 echo "=========================================="
 echo ""
 
-# Node.js 확인
-if command -v node &> /dev/null; then
-    NODE_VERSION=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
-    if [ "$NODE_VERSION" -ge 18 ]; then
-        echo "[1/3] Node.js $(node --version) 이미 설치됨 ✓"
-    else
-        echo "[1/3] Node.js 업그레이드 필요 (현재: v$NODE_VERSION, 필요: v18+)"
-        curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-        sudo apt-get install -y nodejs
-    fi
-else
-    echo "[1/3] Node.js 설치 중..."
-    curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-    sudo apt-get install -y nodejs
+# Claude Code 설치 확인
+if ! command -v claude &> /dev/null; then
+    echo "Claude Code가 설치되어 있지 않습니다."
+    echo "console 노드에서 실행해주세요."
+    exit 1
 fi
 
-# Claude Code 설치
-echo "[2/3] Claude Code 설치 중..."
-sudo npm install -g @anthropic-ai/claude-code
+echo "현재 설치된 버전:"
+echo "  Node.js: $(node --version)"
+echo "  Claude:  $(claude --version)"
+echo ""
 
 # API 키 설정
-echo "[3/3] API 키 설정"
-echo ""
 echo "Anthropic API 키가 필요합니다."
 echo "발급: https://console.anthropic.com/settings/keys"
 echo ""
@@ -42,23 +30,21 @@ if [ -n "$API_KEY" ]; then
     sed -i '/ANTHROPIC_API_KEY/d' ~/.bashrc 2>/dev/null || true
     echo "export ANTHROPIC_API_KEY=\"$API_KEY\"" >> ~/.bashrc
     export ANTHROPIC_API_KEY="$API_KEY"
-    echo "API 키가 ~/.bashrc에 저장되었습니다 ✓"
+    echo ""
+    echo "API 키가 ~/.bashrc에 저장되었습니다."
 else
+    echo ""
     echo "API 키가 입력되지 않았습니다. 나중에 수동 설정하세요:"
     echo "  echo 'export ANTHROPIC_API_KEY=\"sk-ant-xxxxx\"' >> ~/.bashrc"
 fi
 
 echo ""
 echo "=========================================="
-echo "  설치 완료!"
+echo "  설정 완료!"
 echo "=========================================="
 echo ""
-echo "버전 정보:"
-echo "  Node.js: $(node --version)"
-echo "  npm:     $(npm --version)"
-echo "  Claude:  $(claude --version)"
-echo ""
 echo "사용법:"
-echo "  claude              # 대화형 모드"
-echo "  claude \"질문\"      # 단일 질문"
+echo "  source ~/.bashrc  # 현재 세션에 적용"
+echo "  claude            # 대화형 모드"
+echo "  claude \"질문\"    # 단일 질문"
 echo ""

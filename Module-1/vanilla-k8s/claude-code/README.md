@@ -1,17 +1,23 @@
 # Claude Code 설치 및 설정 (Ubuntu)
 
-cp-k8s (Control Plane) 노드에서 Claude Code를 사용하기 위한 설치 가이드입니다.
+console 노드에서 Claude Code를 사용하기 위한 가이드입니다.
 
-## 빠른 설치 (권장)
+## 자동 설치
+
+console VM 배포 시 Claude Code가 자동으로 설치됩니다:
+- Node.js 22
+- Claude Code CLI
+- kubectl + kubeconfig
+
+## API 키 설정
 
 ```bash
-bash /root/SSF/Module-1/vanilla-k8s/claude-code/install.sh
+# console 노드에서 실행
+bash ~/SSF/Module-1/vanilla-k8s/claude-code/install.sh
 ```
 
-설치 스크립트가 자동으로:
-1. Node.js 22 설치
-2. Claude Code 설치
-3. API 키 입력 → `~/.bashrc`에 영구 저장
+설치 스크립트가:
+1. API 키 입력 → `~/.bashrc`에 영구 저장
 
 ---
 

@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
       cfg.vm.provider "virtualbox" do |vb|
         vb.name = "cp-k8s-#{k8s_V[0..5]}(github_SysNet4Admin)"
         vb.cpus = 4
-        vb.memory = 6144
+        vb.memory = 4096
         vb.customize ["modifyvm", :id, "--groups", "/SSF-k8s-U#{k8s_V[0..5]}-ctrd-#{ctrd_V[0..2]}(github_SysNet4Admin)"]
       end
       cfg.vm.host_name = "cp-k8s"
@@ -55,5 +55,24 @@ Vagrant.configure("2") do |config|
       cfg.vm.provision "shell", path: "worker_nodes.sh"
     end
   end
+
+  #==============#
+  # Console Node #
+  #==============#
+
+    config.vm.define "console-#{k8s_V[0..5]}" do |cfg|
+      cfg.vm.box = "sysnet4admin/Ubuntu-k8s"
+      cfg.vm.provider "virtualbox" do |vb|
+        vb.name = "console-#{k8s_V[0..5]}(github_SysNet4Admin)"
+        vb.cpus = 1
+        vb.memory = 1024
+        vb.customize ["modifyvm", :id, "--groups", "/SSF-k8s-U#{k8s_V[0..5]}-ctrd-#{ctrd_V[0..2]}(github_SysNet4Admin)"]
+      end
+      cfg.vm.host_name = "console"
+      cfg.vm.network "private_network", ip: "192.168.1.241"
+      cfg.vm.network "forwarded_port", guest: 22, host: 60241, auto_correct: true, id: "ssh"
+      cfg.vm.synced_folder "../data", "/vagrant", disabled: true
+      cfg.vm.provision "shell", path: "console_node.sh", args: [ k8s_V ]
+    end
 
 end
