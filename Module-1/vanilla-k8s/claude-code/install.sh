@@ -1,6 +1,6 @@
 #!/bin/bash
 # Claude Code API 키 설정 스크립트
-# console 노드에서 실행: bash ~/SSF/Module-1/vanilla-k8s/claude-code/install.sh
+# cp-k8s 노드에서 vagrant 유저로 실행: su - vagrant -c "bash ~/SSF/Module-1/vanilla-k8s/claude-code/install.sh"
 
 echo "=========================================="
 echo "  Claude Code API 키 설정"
@@ -10,7 +10,7 @@ echo ""
 # Claude Code 설치 확인
 if ! command -v claude &> /dev/null; then
     echo "Claude Code가 설치되어 있지 않습니다."
-    echo "console 노드에서 실행해주세요."
+    echo "cp-k8s 노드를 확인하세요."
     exit 1
 fi
 

@@ -1,19 +1,26 @@
 # Claude Code 설치 및 설정 (Ubuntu)
 
-console 노드에서 Claude Code를 사용하기 위한 가이드입니다.
+cp-k8s (Control Plane) 노드에서 Claude Code를 사용하기 위한 가이드입니다.
 
 ## 자동 설치
 
-console VM 배포 시 Claude Code가 자동으로 설치됩니다:
+cp-k8s 노드 배포 시 Claude Code가 자동으로 설치됩니다:
 - Node.js 22
 - Claude Code CLI
-- kubectl + kubeconfig
+- claude-run wrapper (vagrant 유저로 실행)
 
 ## API 키 설정
 
+cp-k8s 노드에 로그인 후:
+
 ```bash
-# console 노드에서 실행
+# root에서 vagrant 유저로 전환
+su - vagrant
+
+# API 키 설정 스크립트 실행
 bash ~/SSF/Module-1/vanilla-k8s/claude-code/install.sh
+
+# API 키 입력 (sk-ant-...)
 ```
 
 설치 스크립트가:
@@ -30,22 +37,15 @@ bash ~/SSF/Module-1/vanilla-k8s/claude-code/install.sh
 
 ---
 
-## 수동 설치
+## 수동 설정
 
-### 1. Node.js 설치
-
-```bash
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-sudo apt-get install -y nodejs
-```
-
-### 2. Claude Code 설치
+### 1. vagrant 유저로 전환
 
 ```bash
-sudo npm install -g @anthropic-ai/claude-code
+su - vagrant
 ```
 
-### 3. API 키 영구 설정
+### 2. API 키 영구 설정
 
 ```bash
 echo 'export ANTHROPIC_API_KEY="sk-ant-xxxxx"' >> ~/.bashrc
@@ -57,15 +57,37 @@ source ~/.bashrc
 ## 사용법
 
 ```bash
-# 대화형 모드
-claude
+# root에서도 자동으로 vagrant 유저로 실행
+claude              # 대화형 모드
+claude "질문"      # 단일 질문
 
-# 단일 질문
-claude "nginx deployment yaml 만들어줘"
-
-# 특정 디렉토리에서 시작
-cd /root/SSF && claude
+# 또는 vagrant 유저로 직접 실행
+su - vagrant
+claude "질문"
 ```
+
+---
+
+## Root 제한 회피 방법
+
+Claude Code는 root 계정에서 제한이 있어, `claude-run` wrapper script를 통해 자동으로 vagrant 유저로 전환됩니다:
+
+```bash
+# /usr/local/bin/claude-run (자동 생성)
+#!/bin/bash
+if [ "$(id -u)" = "0" ]; then
+    exec su - vagrant -c "claude $*"
+else
+    exec claude "$@"
+fi
+```
+
+따라서 root에서 `claude` 명령어를 실행하면:
+1. 자동으로 `claude-run`이 호출됨
+2. vagrant 유저로 전환되어 Claude 실행
+3. 모든 제한 없이 정상 작동
+
+---
 
 ## 주요 명령어
 
@@ -78,11 +100,8 @@ cd /root/SSF && claude
 
 ---
 
-## API 키 변경
+## 참고
 
-```bash
-# 기존 키 제거 후 새 키 설정
-sed -i '/ANTHROPIC_API_KEY/d' ~/.bashrc
-echo 'export ANTHROPIC_API_KEY="새로운키"' >> ~/.bashrc
-source ~/.bashrc
-```
+- kubeconfig는 root의 `~/.kube/config`에 저장됨
+- Claude Code는 vagrant 유저 계정에서 실행되므로 파일 접근 권한에 주의
+- API 키는 vagrant 유저의 `~/.bashrc`에만 저장됨
