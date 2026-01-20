@@ -41,6 +41,16 @@ GKE Standard 모드로 배포합니다.
 
 > **참고**: Autopilot은 편리하지만 예측하지 못한 Quota 문제가 발생할 수 있어 Standard 모드를 사용합니다.
 
+## GKE 비용 구조
+
+| 항목 | 비용 | 비고 |
+|------|------|------|
+| Control Plane | $0.10/시간 (~$72/월) | Zonal 클러스터 1개는 무료 크레딧으로 상쇄 |
+| 무료 크레딧 | $74.40/월 | billing account당, 매월 리셋 |
+| 노드 (e2-standard-2) | ~$0.067/시간 | Spot VM 사용 시 60~90% 절감 |
+
+> **참고**: 단일 Zonal 클러스터의 Control Plane은 무료 크레딧으로 실질 무료입니다.
+
 ## 비용 관리 주의사항
 - 실습 후 반드시 클러스터 삭제 (`5-delete-cluster.sh`)
 - Spot VM 사용으로 일반 VM 대비 60~90% 비용 절감

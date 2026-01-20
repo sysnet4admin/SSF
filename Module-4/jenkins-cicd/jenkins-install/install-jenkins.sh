@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Jenkins 설치 스크립트 (GKE/바닐라 K8s 호환)
+# Jenkins 설치 스크립트 (GKE/바닐라 K8s 자동 감지)
 #
 # 사전 요구사항:
 # - Helm 설치 (Module-3에서 완료)
@@ -23,8 +23,17 @@ JV_OPT1="-Duser.timezone=Asia/Seoul"
 JV_OPT2="-Dcasc.jenkins.config=$JK_CFG/jcasc/jenkins-config.yaml"
 JV_OPT3="-Dhudson.model.DownloadService.noSignatureCheck=true"
 
-# 바닐라 K8s: control-plane 노드 감지 (GKE에서는 빈 값)
-CP_NODE=$(kubectl get nodes -l node-role.kubernetes.io/control-plane -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+# 환경 자동 감지: Control Plane 노드 존재 여부
+# - 바닐라 K8s: CP_NODE에 노드명 설정 → nodeSelector/toleration 적용
+# - GKE: CP_NODE 빈 값 → nodeSelector/toleration 생략
+CP_NODE=$(kubectl get nodes -l node-role.kubernetes.io/control-plane \
+  -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+
+if [ -n "$CP_NODE" ]; then
+  echo "환경 감지: 바닐라 K8s (Control Plane: $CP_NODE)"
+else
+  echo "환경 감지: GKE (Control Plane 노드 없음)"
+fi
 
 helm upgrade --install jenkins edu/jenkins \
   --namespace ci-cd \

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Prometheus Stack 설치 스크립트 (Prometheus + Grafana)
-# GKE/바닐라 K8s 호환
+# GKE/바닐라 K8s 자동 감지
 #
 # 사전 요구사항:
 # - Helm 설치 (Module-3에서 완료)
@@ -14,6 +14,18 @@
 
 set -e
 
+# 환경 자동 감지: Control Plane 노드 존재 여부
+# - 바닐라 K8s: CP_NODE에 노드명 설정 → toleration 적용
+# - GKE: CP_NODE 빈 값 → toleration 생략
+CP_NODE=$(kubectl get nodes -l node-role.kubernetes.io/control-plane \
+  -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+
+if [ -n "$CP_NODE" ]; then
+  echo "환경 감지: 바닐라 K8s (Control Plane: $CP_NODE)"
+else
+  echo "환경 감지: GKE (Control Plane 노드 없음)"
+fi
+
 helm upgrade --install prometheus-stack edu/kube-prometheus-stack \
   --namespace monitoring \
   --create-namespace \
@@ -25,9 +37,9 @@ helm upgrade --install prometheus-stack edu/kube-prometheus-stack \
   --set grafana.adminPassword=admin \
   --set alertmanager.enabled=false \
   --set nodeExporter.enabled=true \
-  --set nodeExporter.tolerations[0].key=node-role.kubernetes.io/control-plane \
-  --set nodeExporter.tolerations[0].effect=NoSchedule \
-  --set nodeExporter.tolerations[0].operator=Exists
+  ${CP_NODE:+--set nodeExporter.tolerations[0].key=node-role.kubernetes.io/control-plane} \
+  ${CP_NODE:+--set nodeExporter.tolerations[0].effect=NoSchedule} \
+  ${CP_NODE:+--set nodeExporter.tolerations[0].operator=Exists}
   # storageClass 생략 시 기본 StorageClass 사용 (GKE/바닐라 K8s 호환)
 
 echo ""
