@@ -17,9 +17,33 @@ Google Cloud Platform의 관리형 쿠버네티스 서비스인 GKE를 사용하
 | 4 | `4-connect-cluster.sh` | 클러스터 연결 (kubeconfig 설정) |
 | 5 | `5-delete-cluster.sh` | 클러스터 삭제 (비용 관리) |
 
+## 클러스터 구성
+
+GKE Standard 모드로 배포합니다.
+
+| 항목 | 설정값 |
+|------|--------|
+| 클러스터 이름 | ssf-gke-cluster |
+| 존 | YOUR_ZONE (서울) |
+| 머신 타입 | e2-standard-2 (2 vCPU, 8GB) |
+| VM 유형 | Spot VM (비용 절감) |
+| 노드 수 | 2~3 (오토스케일링) |
+| 디스크 | 30GB pd-standard |
+
+### Autopilot vs Standard
+
+| 항목 | Autopilot | Standard |
+|------|-----------|----------|
+| 노드 관리 | 자동 | 수동 |
+| 비용 | Pod 리소스 기준 | 노드 기준 |
+| 유연성 | 제한적 | 높음 |
+| Quota 이슈 | 발생 가능 | 예측 가능 |
+
+> **참고**: Autopilot은 편리하지만 예측하지 못한 Quota 문제가 발생할 수 있어 Standard 모드를 사용합니다.
+
 ## 비용 관리 주의사항
 - 실습 후 반드시 클러스터 삭제 (`5-delete-cluster.sh`)
-- GKE Autopilot: 사용한 리소스만 과금
+- Spot VM 사용으로 일반 VM 대비 60~90% 비용 절감
 - 무료 크레딧 소진 시 자동 과금되지 않음 (결제 계정 미등록 시)
 
 ## 참고

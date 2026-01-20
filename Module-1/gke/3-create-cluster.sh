@@ -1,15 +1,23 @@
 #!/bin/bash
-# GKE 클러스터 생성 (Autopilot 모드 - 무료 크레딧 최적화)
+# GKE 클러스터 생성 (Standard 모드)
 
 # 변수 설정
-CLUSTER_NAME="my-gke-cluster"
-REGION="YOUR_REGION"  # 서울 리전
+CLUSTER_NAME="ssf-gke-cluster"
+ZONE="YOUR_ZONE"  # 서울 리전 a 존
 
-# Autopilot 클러스터 생성
-# - 노드 관리 자동화
-# - 사용한 리소스만 과금
-gcloud container clusters create-auto $CLUSTER_NAME \
-  --region=$REGION
+# Standard 클러스터 생성
+# - Spot VM으로 비용 절감
+# - 오토스케일링 활성화 (2~3 노드)
+gcloud container clusters create $CLUSTER_NAME \
+  --zone $ZONE \
+  --machine-type e2-standard-2 \
+  --spot \
+  --num-nodes 2 \
+  --min-nodes 2 \
+  --max-nodes 3 \
+  --enable-autoscaling \
+  --disk-size 30 \
+  --disk-type pd-standard
 
 # 클러스터 생성 확인
 echo "=== 클러스터 목록 ==="
