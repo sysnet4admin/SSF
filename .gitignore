@@ -21,7 +21,7 @@
 # PPT files and backups
 ppt/
 pptx/
-ppt_*_backup/
+ppt_backup/
 
 # Python
 __pycache__/
