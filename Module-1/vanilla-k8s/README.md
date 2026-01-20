@@ -28,7 +28,7 @@ Vagrant + VirtualBox를 사용하여 로컬에 쿠버네티스 클러스터를 �
 | Calico | 3.31.2 | CNI (네트워크 플러그인) |
 | MetalLB | 0.15.3 | LoadBalancer 서비스 (IP Pool: 192.168.1.11-99) |
 | CSI Driver NFS | 4.12.1 | 동적 볼륨 프로비저닝 |
-| Helm | 3.19.5 | 패키지 매니저 |
+| Helm | 4.0.4 | 패키지 매니저 |
 
 ## 클러스터 구성 방법
 

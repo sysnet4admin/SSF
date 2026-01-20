@@ -112,7 +112,7 @@ exit 1
 #######################
 # Helm Installation
 #######################
-curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+curl -fsSL https://raw.githubusercontent.com/sysnet4admin/IaC/main/k8s/extra-pkgs/v1.35/get_helm_v4.0.4.sh | bash
 
 helm repo add edu https://k8s-edu.github.io/Bkv2_main/helm-charts/
 
