@@ -5,7 +5,11 @@ Prometheus Stack은 Prometheus + Grafana를 포함한 통합 모니터링 솔루
 
 > **사전 요구사항**: Module-3에서 Helm과 edu 저장소가 이미 설치되어 있어야 합니다.
 
-> **GKE/바닐라 K8s 호환**: storageClass를 생략하여 각 환경의 기본 StorageClass를 사용합니다.
+> **GKE/바닐라 K8s 호환**:
+> - 환경 자동 감지: Control Plane 노드 존재 여부를 자동 감지하여 Node Exporter의 toleration을 설정합니다.
+> - 바닐라 K8s: CP 노드 포함 모든 노드에서 메트릭 수집 (toleration 적용)
+> - GKE: 워커 노드에서만 메트릭 수집 (toleration 생략)
+> - storageClass를 생략하여 각 환경의 기본 StorageClass를 사용합니다.
 
 ## 포함 구성요소
 
@@ -129,6 +133,20 @@ irate(node_network_receive_bytes_total[5m])
 │  │  (OS 메트릭)  │  │   Metrics   │  │  (/metrics)  │   │
 │  └──────────────┘  └──────────────┘  └──────────────┘   │
 └─────────────────────────────────────────────────────────┘
+```
+
+## 환경별 배포 동작
+
+스크립트가 자동으로 환경을 감지하여 적절한 설정을 적용합니다:
+
+```bash
+# 바닐라 K8s (Control Plane 노드 존재)
+# → Node Exporter toleration 적용
+# → CP 노드 포함 모든 노드에서 메트릭 수집
+
+# GKE (Control Plane 노드 없음)
+# → Node Exporter toleration 생략
+# → 워커 노드에서만 메트릭 수집
 ```
 
 ## 삭제

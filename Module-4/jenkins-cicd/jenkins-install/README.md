@@ -5,7 +5,11 @@ Helm을 사용하여 쿠버네티스에 Jenkins를 설치합니다.
 
 > **사전 요구사항**: Module-3에서 Helm과 edu 저장소가 이미 설치되어 있어야 합니다.
 
-> **GKE/바닐라 K8s 호환**: storageClassName을 생략하여 각 환경의 기본 StorageClass를 사용합니다.
+> **GKE/바닐라 K8s 호환**:
+> - 환경 자동 감지: Control Plane 노드 존재 여부를 자동 감지하여 nodeSelector/toleration을 설정합니다.
+> - 바닐라 K8s: Control Plane 노드에 Jenkins 배포 (nodeSelector + toleration)
+> - GKE: 워커 노드에 자동 배포 (nodeSelector/toleration 생략)
+> - storageClassName을 생략하여 각 환경의 기본 StorageClass를 사용합니다.
 
 ## 실습 파일
 | 파일 | 설명 |
@@ -70,3 +74,18 @@ kubectl delete namespace ci-cd
 | `controller.serviceType` | LoadBalancer | 외부 접근용 |
 | `controller.servicePort` | 80 | 서비스 포트 |
 | JCasc | jenkins-config.yaml | Jenkins Configuration as Code |
+| 환경 감지 | 자동 | CP 노드 유무로 바닐라 K8s/GKE 구분 |
+
+## 환경별 배포 동작
+
+스크립트가 자동으로 환경을 감지하여 적절한 설정을 적용합니다:
+
+```bash
+# 바닐라 K8s (Control Plane 노드 존재)
+# → nodeSelector + toleration 적용
+# → CP 노드에 Jenkins 배포
+
+# GKE (Control Plane 노드 없음)
+# → nodeSelector + toleration 생략
+# → 워커 노드에 자동 배포
+```
