@@ -18,9 +18,10 @@
 *.tmp
 *.temp
 
-# PPT files
+# PPT files and backups
 ppt/
 pptx/
+ppt_*_backup/
 
 # Python
 __pycache__/
