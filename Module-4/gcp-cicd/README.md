@@ -26,8 +26,8 @@ GCP 네이티브 CI/CD 파이프라인 실습입니다.
 
 | File | Description |
 |------|-------------|
-| `setup.sh` | API 활성화 및 초기 설정 |
-| `cloudbuild.yaml` | CI 파이프라인 정의 |
+| `setup.sh` | API 활성화 및 초기 설정 (클러스터 위치 자동 감지) |
+| `cloudbuild.yaml` | CI 파이프라인 정의 (SHORT_SHA 기본값: v1) |
 | `clouddeploy.yaml` | CD 파이프라인 정의 |
 | `skaffold.yaml` | 매니페스트 렌더링 설정 |
 | `app/` | 샘플 애플리케이션 |
@@ -69,13 +69,12 @@ chmod +x setup.sh
 
 ```bash
 # 수동 빌드 실행
-# ⚠️ 중요:
-# 1. --region은 클러스터의 region 사용 (zone이면 -a/-b/-c 제거)
-# 2. --substitutions=SHORT_SHA 필수 지정 (Troubleshooting 섹션 참고)
+# ⚠️ --region은 클러스터의 region 사용 (zone이면 -a/-b/-c 제거)
+# 💡 SHORT_SHA는 cloudbuild.yaml에 기본값(v1)이 설정되어 있어 생략 가능
+#    다른 버전으로 빌드하려면 --substitutions=SHORT_SHA=v2 추가
 gcloud builds submit \
   --config=cloudbuild.yaml \
-  --region=YOUR_REGION \
-  --substitutions=SHORT_SHA=v1
+  --region=YOUR_REGION
 
 # Cloud Build 로그 확인 (region은 위와 동일하게)
 gcloud builds list --region=YOUR_REGION
@@ -106,7 +105,7 @@ cat app/index.html | grep version
 
 ```bash
 # 수동 빌드 재실행 (버전 v2로 빌드)
-# ⚠️ SHORT_SHA=v2로 변경 (이전과 다른 버전 사용)
+# ⚠️ 이번에는 --substitutions=SHORT_SHA=v2 명시 (기본값 v1 덮어쓰기)
 gcloud builds submit \
   --config=cloudbuild.yaml \
   --region=YOUR_REGION \
@@ -132,36 +131,38 @@ Cloud Source Repositories 대신 GitHub을 사용하여 GitOps를 구성할 수 
 
 ## Troubleshooting
 
-### 1. 빌드 실패: SHORT_SHA 변수 오류
-
-**증상**
-```
-invalid argument "YOUR_REGION-docker.pkg.dev/.../demo-app:" for "-t, --tag" flag
-```
-
-**원인**
-- `cloudbuild.yaml`에서 `${SHORT_SHA}` 변수를 사용하지만, **Git 리포지토리가 아닌 로컬 소스를 업로드하는 경우 SHORT_SHA가 자동으로 설정되지 않음**
-- 빈 값으로 처리되어 Docker 이미지 태그가 `demo-app:` 형태가 되어 실패
-
-**해결 방법**
-```bash
-# ✗ 잘못된 방법 (SHORT_SHA 없이 실행 - 실패함)
-gcloud builds submit --config=cloudbuild.yaml --region=YOUR_REGION
-
-# ✓ 올바른 방법 (SHORT_SHA 명시 필수)
-gcloud builds submit \
-  --config=cloudbuild.yaml \
-  --region=YOUR_REGION \
-  --substitutions=SHORT_SHA=v1
-```
+### 1. SHORT_SHA 변수 관리
 
 **SHORT_SHA란?**
 - Cloud Build의 빌트인 변수로, Git 커밋 해시의 처음 7자를 의미 (예: `a1b2c3d`)
-- **Git 리포지토리 연동 시**: Cloud Source Repositories 또는 GitHub 트리거 사용 시 자동 설정
-- **로컬 소스 업로드 시**: `gcloud builds submit` 사용 시 **반드시 수동으로 지정해야 함**
-  - 첫 배포: `--substitutions=SHORT_SHA=v1`
-  - 두 번째 배포: `--substitutions=SHORT_SHA=v2`
-  - 커스텀 버전: `--substitutions=SHORT_SHA=feature-auth` 등
+- Docker 이미지 버전 태그로 사용됨 (예: `demo-app:v1`, `demo-app:a1b2c3d`)
+
+**본 프로젝트 설정**
+- `cloudbuild.yaml`에 **기본값 `v1`로 설정**되어 있음
+- 첫 빌드 시 `--substitutions` 옵션 없이 실행 가능
+- 재빌드 시 다른 버전 태그 사용 가능
+
+**사용 예시**
+```bash
+# 첫 번째 빌드 (기본값 v1 사용)
+gcloud builds submit --config=cloudbuild.yaml --region=YOUR_REGION
+
+# 두 번째 빌드 (v2로 덮어쓰기)
+gcloud builds submit \
+  --config=cloudbuild.yaml \
+  --region=YOUR_REGION \
+  --substitutions=SHORT_SHA=v2
+
+# 커스텀 버전
+gcloud builds submit \
+  --config=cloudbuild.yaml \
+  --region=YOUR_REGION \
+  --substitutions=SHORT_SHA=feature-auth
+```
+
+**주의사항**
+- 동일한 SHORT_SHA로 재빌드하면 기존 이미지를 덮어씁니다
+- 새 버전 배포 시 반드시 다른 SHORT_SHA 값 사용 권장
 
 **빌드 로그 확인**
 ```bash
@@ -171,6 +172,10 @@ gcloud builds list --region=YOUR_REGION --limit=5
 # 특정 빌드 상세 로그 확인
 gcloud builds log <BUILD-ID> --region=YOUR_REGION
 ```
+
+**구버전 이슈 (해결됨)**
+- 과거에는 SHORT_SHA 기본값이 없어서 수동으로 지정해야 했음
+- 현재는 cloudbuild.yaml에 `SHORT_SHA: v1` 기본값 설정됨
 
 ---
 

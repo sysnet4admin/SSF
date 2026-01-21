@@ -32,6 +32,7 @@ substitutions:
   _REPO: cicd-repo
   _IMAGE: demo-app
   _PIPELINE: demo-pipeline
+  SHORT_SHA: v1  # Default value for manual builds (override with --substitutions=SHORT_SHA=<version>)
 
 options:
   logging: CLOUD_LOGGING_ONLY
