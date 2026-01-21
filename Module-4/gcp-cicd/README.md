@@ -27,7 +27,7 @@ GCP 네이티브 CI/CD 파이프라인 실습입니다.
 | File | Description |
 |------|-------------|
 | `setup.sh` | API 활성화 및 초기 설정 (클러스터 위치 자동 감지) |
-| `cloudbuild.yaml` | CI 파이프라인 정의 (SHORT_SHA 기본값: v1) |
+| `cloudbuild.yaml` | CI 파이프라인 정의 (_VERSION 기본값: v1) |
 | `clouddeploy.yaml` | CD 파이프라인 정의 |
 | `skaffold.yaml` | 매니페스트 렌더링 설정 |
 | `app/` | 샘플 애플리케이션 |
@@ -70,8 +70,8 @@ chmod +x setup.sh
 ```bash
 # 수동 빌드 실행
 # ⚠️ --region은 클러스터의 region 사용 (zone이면 -a/-b/-c 제거)
-# 💡 SHORT_SHA는 cloudbuild.yaml에 기본값(v1)이 설정되어 있어 생략 가능
-#    다른 버전으로 빌드하려면 --substitutions=SHORT_SHA=v2 추가
+# 💡 _VERSION은 cloudbuild.yaml에 기본값(v1)이 설정되어 있어 생략 가능
+#    다른 버전으로 빌드하려면 --substitutions=_VERSION=v2 추가
 gcloud builds submit \
   --config=cloudbuild.yaml \
   --region=YOUR_REGION
@@ -105,11 +105,11 @@ cat app/index.html | grep version
 
 ```bash
 # 수동 빌드 재실행 (버전 v2로 빌드)
-# ⚠️ 이번에는 --substitutions=SHORT_SHA=v2 명시 (기본값 v1 덮어쓰기)
+# ⚠️ 이번에는 --substitutions=_VERSION=v2 명시 (기본값 v1 덮어쓰기)
 gcloud builds submit \
   --config=cloudbuild.yaml \
   --region=YOUR_REGION \
-  --substitutions=SHORT_SHA=v2
+  --substitutions=_VERSION=v2
 
 # Cloud Build 실행 확인 (region은 위와 동일하게)
 gcloud builds list --region=YOUR_REGION --limit=2
@@ -131,11 +131,11 @@ Cloud Source Repositories 대신 GitHub을 사용하여 GitOps를 구성할 수 
 
 ## Troubleshooting
 
-### 1. SHORT_SHA 변수 관리
+### 1. 버전 관리 (_VERSION 변수)
 
-**SHORT_SHA란?**
-- Cloud Build의 빌트인 변수로, Git 커밋 해시의 처음 7자를 의미 (예: `a1b2c3d`)
-- Docker 이미지 버전 태그로 사용됨 (예: `demo-app:v1`, `demo-app:a1b2c3d`)
+**_VERSION이란?**
+- Docker 이미지 버전 태그로 사용되는 사용자 정의 변수
+- `cloudbuild.yaml`의 substitutions에 정의됨 (예: `demo-app:v1`, `demo-app:v2`)
 
 **본 프로젝트 설정**
 - `cloudbuild.yaml`에 **기본값 `v1`로 설정**되어 있음
@@ -151,18 +151,18 @@ gcloud builds submit --config=cloudbuild.yaml --region=YOUR_REGION
 gcloud builds submit \
   --config=cloudbuild.yaml \
   --region=YOUR_REGION \
-  --substitutions=SHORT_SHA=v2
+  --substitutions=_VERSION=v2
 
 # 커스텀 버전
 gcloud builds submit \
   --config=cloudbuild.yaml \
   --region=YOUR_REGION \
-  --substitutions=SHORT_SHA=feature-auth
+  --substitutions=_VERSION=feature-auth
 ```
 
 **주의사항**
-- 동일한 SHORT_SHA로 재빌드하면 기존 이미지를 덮어씁니다
-- 새 버전 배포 시 반드시 다른 SHORT_SHA 값 사용 권장
+- 동일한 _VERSION으로 재빌드하면 기존 이미지를 덮어씁니다
+- 새 버전 배포 시 반드시 다른 _VERSION 값 사용 권장
 
 **빌드 로그 확인**
 ```bash
@@ -173,9 +173,10 @@ gcloud builds list --region=YOUR_REGION --limit=5
 gcloud builds log <BUILD-ID> --region=YOUR_REGION
 ```
 
-**구버전 이슈 (해결됨)**
-- 과거에는 SHORT_SHA 기본값이 없어서 수동으로 지정해야 했음
-- 현재는 cloudbuild.yaml에 `SHORT_SHA: v1` 기본값 설정됨
+**Short_SHA vs _VERSION**
+- `SHORT_SHA`: Cloud Build 예약 변수 (Git 트리거 시 자동 설정, 사용자가 기본값 설정 불가)
+- `_VERSION`: 사용자 정의 변수 (underscore로 시작, 기본값 설정 가능)
+- 본 프로젝트는 수동 빌드를 위해 `_VERSION` 사용
 
 ---
 

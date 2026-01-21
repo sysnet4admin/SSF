@@ -4,7 +4,7 @@ steps:
     args:
       - 'build'
       - '-t'
-      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_IMAGE}:${SHORT_SHA}'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_IMAGE}:${_VERSION}'
       - '-t'
       - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_IMAGE}:latest'
       - './app'
@@ -22,17 +22,17 @@ steps:
       - 'deploy'
       - 'releases'
       - 'create'
-      - 'release-${SHORT_SHA}'
+      - 'release-${_VERSION}'
       - '--delivery-pipeline=${_PIPELINE}'
       - '--region=${_REGION}'
-      - '--images=${_IMAGE}=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_IMAGE}:${SHORT_SHA}'
+      - '--images=${_IMAGE}=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_IMAGE}:${_VERSION}'
 
 substitutions:
   _REGION: YOUR_REGION
   _REPO: cicd-repo
   _IMAGE: demo-app
   _PIPELINE: demo-pipeline
-  SHORT_SHA: v1  # Default value for manual builds (override with --substitutions=SHORT_SHA=<version>)
+  _VERSION: v1  # Default version tag (override with --substitutions=_VERSION=v2)
 
 options:
   logging: CLOUD_LOGGING_ONLY
