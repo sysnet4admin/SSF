@@ -9,10 +9,10 @@ NC='\033[0m'
 
 echo -e "${GREEN}=== GCP CI/CD Setup ===${NC}"
 
-# Get current project and region
+# Get current project and cluster info
 PROJECT_ID=$(gcloud config get-value project)
-REGION="YOUR_REGION"
 CLUSTER_NAME=$(gcloud container clusters list --format="value(name)" --limit=1)
+CLUSTER_LOCATION=$(gcloud container clusters list --format="value(location)" --limit=1)
 
 if [ -z "$PROJECT_ID" ]; then
     echo -e "${RED}Error: No project set. Run 'gcloud config set project PROJECT_ID'${NC}"
@@ -24,9 +24,20 @@ if [ -z "$CLUSTER_NAME" ]; then
     exit 1
 fi
 
+# Determine if location is zone (e.g., YOUR_ZONE) or region (e.g., YOUR_REGION)
+# Cloud Build and Cloud Deploy require region, not zone
+if [[ "$CLUSTER_LOCATION" == *-[a-z] ]]; then
+    # It's a zone (e.g., YOUR_ZONE), extract region
+    REGION=$(echo $CLUSTER_LOCATION | sed 's/-[a-z]$//')
+    echo -e "${YELLOW}Cluster Location (zone): ${CLUSTER_LOCATION}${NC}"
+else
+    # It's already a region
+    REGION=$CLUSTER_LOCATION
+fi
+
 echo -e "${YELLOW}Project: ${PROJECT_ID}${NC}"
-echo -e "${YELLOW}Region: ${REGION}${NC}"
 echo -e "${YELLOW}Cluster: ${CLUSTER_NAME}${NC}"
+echo -e "${YELLOW}Region (for Cloud Build/Deploy): ${REGION}${NC}"
 echo ""
 
 # 1. Enable APIs
@@ -52,7 +63,7 @@ gcloud artifacts repositories create cicd-repo \
 echo -e "${GREEN}[3/4] Configuring Cloud Deploy...${NC}"
 sed -i.bak \
     -e "s/PROJECT_ID/${PROJECT_ID}/g" \
-    -e "s/REGION/${REGION}/g" \
+    -e "s/CLUSTER_LOCATION/${CLUSTER_LOCATION}/g" \
     -e "s/CLUSTER_NAME/${CLUSTER_NAME}/g" \
     clouddeploy.yaml
 rm -f clouddeploy.yaml.bak
@@ -77,9 +88,17 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
 echo ""
 echo -e "${GREEN}=== Setup Complete ===${NC}"
 echo ""
-echo "Next steps:"
-echo "1. Run manual build: gcloud builds submit --config=cloudbuild.yaml --region=${REGION}"
-echo "2. Check deployment: kubectl get pods"
+echo -e "${GREEN}Next Steps:${NC}"
+echo ""
+echo "1. Build and deploy (with version tag):"
+echo -e "   ${YELLOW}gcloud builds submit \\${NC}"
+echo -e "   ${YELLOW}  --config=cloudbuild.yaml \\${NC}"
+echo -e "   ${YELLOW}  --region=${REGION} \\${NC}"
+echo -e "   ${YELLOW}  --substitutions=SHORT_SHA=v1${NC}"
+echo ""
+echo "2. Check deployment:"
+echo "   kubectl get pods -l app=demo-app"
+echo "   kubectl get svc demo-app-svc"
 echo ""
 echo -e "${YELLOW}Note: Cloud Source Repositories is not available for new projects.${NC}"
-echo -e "${YELLOW}Use manual build (gcloud builds submit) for CI/CD workflow.${NC}"
+echo -e "${YELLOW}      Use manual build with --substitutions=SHORT_SHA=<version> for versioning.${NC}"

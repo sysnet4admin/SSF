@@ -13,4 +13,4 @@ metadata:
   name: dev-cluster
 description: Development GKE Cluster
 gke:
-  cluster: projects/PROJECT_ID/locations/REGION/clusters/CLUSTER_NAME
+  cluster: projects/PROJECT_ID/locations/CLUSTER_LOCATION/clusters/CLUSTER_NAME

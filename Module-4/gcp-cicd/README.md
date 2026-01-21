@@ -53,20 +53,34 @@ GCP 네이티브 CI/CD 파이프라인 실습입니다.
 cd Module-4/gcp-cicd
 
 # 초기 설정 (API 활성화, 저장소 생성)
+# ⚠️ setup.sh가 클러스터 위치를 자동 감지하여 region 설정
 chmod +x setup.sh
 ./setup.sh
 ```
+
+**setup.sh가 수행하는 작업:**
+1. GKE 클러스터 위치 자동 감지 (zone → region 변환 포함)
+2. Cloud Build, Cloud Deploy, Artifact Registry API 활성화
+3. Docker 이미지 저장소 생성
+4. Cloud Deploy 파이프라인 생성
+5. IAM 권한 설정
 
 ### Step 2: Manual Build & Deploy (15분)
 
 ```bash
 # 수동 빌드 실행
-gcloud builds submit --config=cloudbuild.yaml --region=YOUR_REGION
+# ⚠️ 중요:
+# 1. --region은 클러스터의 region 사용 (zone이면 -a/-b/-c 제거)
+# 2. --substitutions=SHORT_SHA 필수 지정 (Troubleshooting 섹션 참고)
+gcloud builds submit \
+  --config=cloudbuild.yaml \
+  --region=YOUR_REGION \
+  --substitutions=SHORT_SHA=v1
 
-# Cloud Build 로그 확인
+# Cloud Build 로그 확인 (region은 위와 동일하게)
 gcloud builds list --region=YOUR_REGION
 
-# Cloud Deploy 릴리스 확인
+# Cloud Deploy 릴리스 확인 (region은 위와 동일하게)
 gcloud deploy releases list --delivery-pipeline=demo-pipeline --region=YOUR_REGION
 
 # GKE 배포 확인
@@ -91,10 +105,14 @@ cat app/index.html | grep version
 #### 3.2 Manual Rebuild & Deploy
 
 ```bash
-# 수동 빌드 재실행
-gcloud builds submit --config=cloudbuild.yaml --region=YOUR_REGION
+# 수동 빌드 재실행 (버전 v2로 빌드)
+# ⚠️ SHORT_SHA=v2로 변경 (이전과 다른 버전 사용)
+gcloud builds submit \
+  --config=cloudbuild.yaml \
+  --region=YOUR_REGION \
+  --substitutions=SHORT_SHA=v2
 
-# Cloud Build 실행 확인
+# Cloud Build 실행 확인 (region은 위와 동일하게)
 gcloud builds list --region=YOUR_REGION --limit=2
 
 # 잠시 대기 후 배포 확인
@@ -112,6 +130,105 @@ Cloud Source Repositories 대신 GitHub을 사용하여 GitOps를 구성할 수 
 
 ---
 
+## Troubleshooting
+
+### 1. 빌드 실패: SHORT_SHA 변수 오류
+
+**증상**
+```
+invalid argument "YOUR_REGION-docker.pkg.dev/.../demo-app:" for "-t, --tag" flag
+```
+
+**원인**
+- `cloudbuild.yaml`에서 `${SHORT_SHA}` 변수를 사용하지만, **Git 리포지토리가 아닌 로컬 소스를 업로드하는 경우 SHORT_SHA가 자동으로 설정되지 않음**
+- 빈 값으로 처리되어 Docker 이미지 태그가 `demo-app:` 형태가 되어 실패
+
+**해결 방법**
+```bash
+# ✗ 잘못된 방법 (SHORT_SHA 없이 실행 - 실패함)
+gcloud builds submit --config=cloudbuild.yaml --region=YOUR_REGION
+
+# ✓ 올바른 방법 (SHORT_SHA 명시 필수)
+gcloud builds submit \
+  --config=cloudbuild.yaml \
+  --region=YOUR_REGION \
+  --substitutions=SHORT_SHA=v1
+```
+
+**SHORT_SHA란?**
+- Cloud Build의 빌트인 변수로, Git 커밋 해시의 처음 7자를 의미 (예: `a1b2c3d`)
+- **Git 리포지토리 연동 시**: Cloud Source Repositories 또는 GitHub 트리거 사용 시 자동 설정
+- **로컬 소스 업로드 시**: `gcloud builds submit` 사용 시 **반드시 수동으로 지정해야 함**
+  - 첫 배포: `--substitutions=SHORT_SHA=v1`
+  - 두 번째 배포: `--substitutions=SHORT_SHA=v2`
+  - 커스텀 버전: `--substitutions=SHORT_SHA=feature-auth` 등
+
+**빌드 로그 확인**
+```bash
+# 최근 빌드 확인
+gcloud builds list --region=YOUR_REGION --limit=5
+
+# 특정 빌드 상세 로그 확인
+gcloud builds log <BUILD-ID> --region=YOUR_REGION
+```
+
+---
+
+### 2. 클러스터 위치 오류: zone vs region
+
+**증상**
+```
+Error: Invalid value for [--region]: ... Please specify a valid region.
+```
+
+**원인**
+- GKE 클러스터가 **zone**에 생성됨 (예: `YOUR_ZONE`)
+- Cloud Build와 Cloud Deploy는 **region**을 요구함 (예: `YOUR_REGION`)
+- zone을 그대로 사용하면 오류 발생
+
+**GKE 클러스터 위치 확인**
+```bash
+# 클러스터 위치 확인
+gcloud container clusters list --format="value(name,location)"
+
+# 출력 예시:
+# autopilot-cluster-1   YOUR_REGION        → region (OK)
+# my-cluster            YOUR_ZONE      → zone (region 추출 필요)
+```
+
+**해결 방법**
+
+**방법 1: setup.sh 사용 (권장)**
+```bash
+# setup.sh가 자동으로 zone → region 변환 처리
+./setup.sh
+```
+
+**방법 2: 수동 변환**
+```bash
+# zone이 YOUR_ZONE인 경우
+# → region은 YOUR_REGION (마지막 -a, -b, -c 제거)
+
+gcloud builds submit \
+  --config=cloudbuild.yaml \
+  --region=YOUR_REGION \
+  --substitutions=SHORT_SHA=v1
+```
+
+**Region 추출 규칙**
+| 클러스터 Location | Cloud Build Region | clouddeploy.yaml 내 cluster |
+|------------------|-------------------|---------------------------|
+| `YOUR_ZONE` (zone) | `YOUR_REGION` | `locations/YOUR_ZONE` |
+| `YOUR_REGION-b` (zone) | `YOUR_REGION` | `locations/YOUR_REGION-b` |
+| `us-central1-c` (zone) | `us-central1` | `locations/us-central1-c` |
+| `YOUR_REGION` (region) | `YOUR_REGION` | `locations/YOUR_REGION` |
+
+**중요한 구분:**
+- `gcloud` 명령어의 `--region`: 항상 region 사용 (zone에서 -a/-b/-c 제거)
+- `clouddeploy.yaml`의 `cluster: locations/...`: 실제 클러스터 위치 그대로 사용 (zone 포함)
+
+---
+
 ## Console URLs
 
 | Service | URL |
@@ -125,10 +242,10 @@ Cloud Source Repositories 대신 GitHub을 사용하여 GitOps를 구성할 수 
 ## Cleanup
 
 ```bash
-# Cloud Deploy 파이프라인 삭제
+# Cloud Deploy 파이프라인 삭제 (region은 setup 시 사용한 값과 동일)
 gcloud deploy delivery-pipelines delete demo-pipeline --region=YOUR_REGION --force
 
-# Artifact Registry 삭제
+# Artifact Registry 삭제 (location은 setup 시 사용한 region과 동일)
 gcloud artifacts repositories delete cicd-repo --location=YOUR_REGION
 
 # K8s 리소스 삭제
