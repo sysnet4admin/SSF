@@ -22,11 +22,41 @@ GCP 네이티브 CI/CD 파이프라인 실습입니다.
 [Local Source] → [Cloud Build] → [Artifact Registry] → [Cloud Deploy] → [GKE]
 ```
 
+## 사전 요구사항
+
+- GKE 클러스터가 생성되어 있어야 합니다 (Module-1/gke 참고)
+- gcloud CLI가 설치 및 인증되어 있어야 합니다
+- kubectl이 GKE 클러스터에 연결되어 있어야 합니다
+
+---
+
+## 설정 순서
+
+| 순서 | 스크립트 | 설명 | 예상 시간 |
+|------|----------|------|----------|
+| 1 | `1-enable-apis.sh` | Cloud Build, Deploy, Artifact Registry API 활성화 | 1분 |
+| 2 | `2-create-registry.sh` | Docker 이미지 저장소 생성 | 1분 |
+| 3 | `3-create-pipeline.sh` | Cloud Deploy 파이프라인 생성 | 2분 |
+| 4 | `4-grant-permissions.sh` | Cloud Build 서비스 계정 권한 설정 | 1분 |
+| 5 | `5-build-deploy.sh` | 애플리케이션 빌드 및 배포 | 3-5분 |
+| 6 | `6-cleanup.sh` | 리소스 삭제 (비용 관리) | 2분 |
+
+> **참고**: `_reference/all-in-one-setup.sh`는 통합 스크립트로, 1-4단계를 한 번에 실행합니다. 학습 목적으로는 개별 스크립트 사용을 권장합니다.
+
+---
+
 ## Lab Files
 
 | File | Description |
 |------|-------------|
-| `setup.sh` | API 활성화 및 초기 설정 (클러스터 위치 자동 감지) |
+| `common-functions.sh` | 공통 함수 및 변수 (자동 로드) |
+| `1-enable-apis.sh` | GCP API 활성화 |
+| `2-create-registry.sh` | Artifact Registry 생성 |
+| `3-create-pipeline.sh` | Cloud Deploy 파이프라인 생성 |
+| `4-grant-permissions.sh` | IAM 권한 설정 |
+| `5-build-deploy.sh` | 빌드 및 배포 실행 |
+| `6-cleanup.sh` | 리소스 정리 |
+| `_reference/all-in-one-setup.sh` | 통합 스크립트 (1-4단계 일괄 실행) |
 | `cloudbuild.yaml` | CI 파이프라인 정의 (_VERSION 기본값: v1) |
 | `clouddeploy.yaml` | CD 파이프라인 정의 |
 | `skaffold.yaml` | 매니페스트 렌더링 설정 |
@@ -47,25 +77,105 @@ GCP 네이티브 CI/CD 파이프라인 실습입니다.
 
 ## Lab Steps
 
-### Step 1: Setup (5분)
+### 방법 1: 단계별 실행 (학습 권장)
+
+각 단계를 개별적으로 실행하면서 GCP Console에서 결과를 확인합니다.
+
+#### Step 1: API 활성화 (1분)
 
 ```bash
 cd Module-4/gcp-cicd
-
-# 초기 설정 (API 활성화, 저장소 생성)
-# ⚠️ setup.sh가 클러스터 위치를 자동 감지하여 region 설정
-chmod +x setup.sh
-./setup.sh
+./1-enable-apis.sh
 ```
 
-**setup.sh가 수행하는 작업:**
+**확인 사항:**
+- [APIs & Services](https://console.cloud.google.com/apis/dashboard) 콘솔에서 활성화된 API 확인
+- Cloud Build, Cloud Deploy, Artifact Registry, Kubernetes Engine API가 활성화되어 있어야 함
+
+#### Step 2: Artifact Registry 생성 (1분)
+
+```bash
+./2-create-registry.sh
+```
+
+**확인 사항:**
+- [Artifact Registry](https://console.cloud.google.com/artifacts) 콘솔에서 `cicd-repo` 저장소 확인
+- Repository format: Docker
+- Location: YOUR_REGION (또는 클러스터 region)
+
+#### Step 3: Cloud Deploy 파이프라인 생성 (2분)
+
+```bash
+./3-create-pipeline.sh
+```
+
+**확인 사항:**
+- [Cloud Deploy](https://console.cloud.google.com/deploy/delivery-pipelines) 콘솔에서 `demo-pipeline` 확인
+- Target: dev-cluster (GKE 클러스터 연결 확인)
+
+#### Step 4: IAM 권한 설정 (1분)
+
+```bash
+./4-grant-permissions.sh
+```
+
+**확인 사항:**
+- [IAM & Admin](https://console.cloud.google.com/iam-admin/iam) 콘솔에서 Cloud Build 서비스 계정 확인
+- `<PROJECT_NUMBER>@cloudbuild.gserviceaccount.com`
+- 권한: Cloud Deploy Releaser, Kubernetes Engine Developer
+
+#### Step 5: 빌드 및 배포 (3-5분)
+
+```bash
+./5-build-deploy.sh
+# 또는 다른 버전으로 빌드
+./5-build-deploy.sh v2
+```
+
+**확인 사항:**
+- [Cloud Build](https://console.cloud.google.com/cloud-build/builds) 콘솔에서 빌드 진행 상황 확인
+- [Cloud Deploy](https://console.cloud.google.com/deploy/delivery-pipelines) 콘솔에서 릴리스 확인
+- GKE Pod 및 Service 확인:
+  ```bash
+  kubectl get pods -l app=demo-app
+  kubectl get svc demo-app-svc
+  ```
+
+#### Step 6: 리소스 정리 (2분)
+
+```bash
+./6-cleanup.sh
+```
+
+---
+
+### 방법 2: 통합 스크립트 (빠른 설정)
+
+Step 1-4를 한 번에 실행하려면 all-in-one 스크립트를 사용합니다.
+
+```bash
+cd Module-4/gcp-cicd
+./_reference/all-in-one-setup.sh
+```
+
+**all-in-one-setup.sh가 수행하는 작업:**
 1. GKE 클러스터 위치 자동 감지 (zone → region 변환 포함)
 2. Cloud Build, Cloud Deploy, Artifact Registry API 활성화
 3. Docker 이미지 저장소 생성
 4. Cloud Deploy 파이프라인 생성
 5. IAM 권한 설정
 
-### Step 2: Manual Build & Deploy (15분)
+이후 Step 5 (빌드/배포)는 수동으로 실행:
+
+```bash
+./5-build-deploy.sh
+```
+
+---
+
+### Manual Build & Deploy (고급)
+
+스크립트 대신 gcloud 명령어를 직접 사용하려는 경우:
 
 ```bash
 # 수동 빌드 실행
@@ -87,11 +197,11 @@ kubectl get pods -l app=demo-app
 kubectl get svc demo-app-svc
 ```
 
-### Step 3: Update Application & Rebuild (10분)
+---
 
-> **Note**: Cloud Source Repositories가 비활성화되어 수동 빌드 방식으로 진행합니다.
+## Application 수정 및 재배포
 
-#### 3.1 Modify Application
+### 애플리케이션 코드 수정
 
 ```bash
 cd ~/SSF/Module-4/gcp-cicd
@@ -101,11 +211,17 @@ sed -i 's/v1/v2/' app/index.html
 cat app/index.html | grep version
 ```
 
-#### 3.2 Manual Rebuild & Deploy
+### 재배포 (방법 1: 스크립트 사용)
+
+```bash
+./5-build-deploy.sh v2
+```
+
+### 재배포 (방법 2: 수동 빌드)
 
 ```bash
 # 수동 빌드 재실행 (버전 v2로 빌드)
-# ⚠️ 이번에는 --substitutions=_VERSION=v2 명시 (기본값 v1 덮어쓰기)
+# ⚠️ --substitutions=_VERSION=v2 명시 (기본값 v1 덮어쓰기)
 gcloud builds submit \
   --config=cloudbuild.yaml \
   --region=YOUR_REGION \
@@ -247,15 +363,30 @@ gcloud builds submit \
 
 ## Cleanup
 
+### 방법 1: 스크립트 사용 (권장)
+
 ```bash
+./6-cleanup.sh
+```
+
+삭제되는 리소스:
+- Cloud Deploy 파이프라인 (demo-pipeline)
+- Artifact Registry 저장소 (cicd-repo)
+- Kubernetes 리소스 (demo-app)
+
+> **참고**: IAM 권한과 API는 삭제되지 않습니다 (다른 리소스에 영향 방지)
+
+### 방법 2: 수동 삭제
+
+```bash
+# K8s 리소스 삭제
+kubectl delete -f k8s/deployment.yaml
+
 # Cloud Deploy 파이프라인 삭제 (region은 setup 시 사용한 값과 동일)
 gcloud deploy delivery-pipelines delete demo-pipeline --region=YOUR_REGION --force
 
 # Artifact Registry 삭제 (location은 setup 시 사용한 region과 동일)
 gcloud artifacts repositories delete cicd-repo --location=YOUR_REGION
-
-# K8s 리소스 삭제
-kubectl delete -f k8s/deployment.yaml
 ```
 
 ---

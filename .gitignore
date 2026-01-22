@@ -37,3 +37,7 @@ scripts/
 
 # Backup folders (Gen1, Gen2, etc.)
 Gen*/
+
+# Module-4 gcp-cicd runtime files
+Module-4/gcp-cicd/clouddeploy.yaml.original
+Module-4/gcp-cicd/clouddeploy.yaml.bak
