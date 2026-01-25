@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
       - name: hj-dashboard
-        image: hj-dashboard:blue
+        image: docker.io/library/hj-dashboard:blue
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
         resources:

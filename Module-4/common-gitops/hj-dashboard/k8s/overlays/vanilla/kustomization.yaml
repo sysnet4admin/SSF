@@ -4,10 +4,9 @@ kind: Kustomization
 resources:
 - ../../base
 
-# Docker Registry 이미지 사용
+# Local containerd 이미지 사용
 images:
-- name: hj-dashboard
-  newName: 192.168.1.13:5000/hj-dashboard
+- name: docker.io/library/hj-dashboard
   newTag: blue
 
 commonLabels:
