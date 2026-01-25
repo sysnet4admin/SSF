@@ -74,6 +74,18 @@ copy config.yaml "$env:APPDATA\tabby\config.yaml"
 
 > **중요**: 모든 작업(kubectl, Claude Code, GCP 인증 등)은 `vagrant` 유저로 진행합니다.
 
+### SSH 연결 유지 설정
+
+SSH 연결이 자동으로 끊기지 않도록 서버 측에서 keepalive 설정이 구성되어 있습니다:
+
+```bash
+# /etc/ssh/sshd_config (서버 측 설정)
+ClientAliveInterval 60      # 60초마다 keepalive 패킷 전송
+ClientAliveCountMax 3       # 최대 3회까지 재시도
+```
+
+이 설정은 클러스터 생성 시(`k8s_env_build.sh`) 자동으로 적용되어, 유휴 상태에서도 SSH 연결이 유지됩니다.
+
 ---
 
 ## 참고
