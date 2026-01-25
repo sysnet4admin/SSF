@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hj-dashboard
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    # GitHub 저장소 URL (본인 Fork로 변경)
+    repoURL: https://github.com/sysnet4admin/SSF
+    targetRevision: main
+    path: Module-4/common-gitops/hj-dashboard/k8s/overlays/gcp
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+
+  syncPolicy:
+    automated:
+      prune: true      # Git에서 삭제된 리소스 자동 삭제
+      selfHeal: true   # 클러스터 변경 시 자동 복구
+    syncOptions:
+    - CreateNamespace=true

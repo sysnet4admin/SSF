@@ -19,8 +19,10 @@ Jenkins를 활용한 CI/CD 파이프라인 실습입니다.
 | `jenkins-install/` | Jenkins Helm 설치 |
 | `jenkins-freestyle/` | Freestyle 빌드 (Docker + Harbor) |
 | `jenkins-pipeline/` | Groovy 기반 Pipeline |
-| `jenkins-gitops/` | GitOps (Poll SCM) |
+| `jenkins-gitops/` | GitOps (Poll SCM) - Jenkins 네이티브 방식 |
 | `_reference/` | Jenkinsfile 예제 |
+
+> **GitOps 권장**: ArgoCD 기반 GitOps는 `Module-4/common-gitops/` 참고
 
 ## GCP CI/CD vs Jenkins
 
@@ -97,7 +99,7 @@ Jenkinsfile(Groovy)을 사용한 CI/CD 파이프라인
 
 ### GitOps (`jenkins-gitops/`)
 
-Poll SCM을 사용한 자동 배포
+Poll SCM을 사용한 자동 배포 (Jenkins 네이티브 방식)
 
 ```
 1. Fork repository & modify manifests
@@ -108,6 +110,9 @@ Poll SCM을 사용한 자동 배포
        ↓
 4. kubectl apply to Kubernetes
 ```
+
+> **권장**: 실무에서는 ArgoCD가 GitOps 표준으로 널리 사용됩니다.
+> ArgoCD 기반 GitOps 실습은 `Module-4/common-gitops/` 폴더를 참고하세요.
 
 ---
 

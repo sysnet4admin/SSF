@@ -11,54 +11,92 @@ CI/CD pipeline implementation on Kubernetes.
 ```
 Module-4/
 ├── gcp-cicd/               # GKE 환경 (Cloud Build + Cloud Deploy)
-└── jenkins-cicd/           # Vanilla K8s 환경 (Jenkins)
-    ├── jenkins-install/
-    ├── jenkins-freestyle/
-    ├── jenkins-pipeline/
-    ├── jenkins-gitops/
-    └── _reference/
+├── jenkins-cicd/           # Vanilla K8s 환경 (Jenkins)
+│   ├── jenkins-install/
+│   ├── jenkins-freestyle/
+│   ├── jenkins-pipeline/
+│   ├── jenkins-gitops/
+│   └── _reference/
+└── common-gitops/          # 공통 GitOps (ArgoCD) - GKE/Vanilla 모두 지원
+    ├── 1-install-argocd/
+    ├── 2-configure-app/
+    └── hj-dashboard/       # 데모 앱 (Blue-Green 지원)
 ```
 
 ## Lab by Platform
 
-| Platform | Recommended | Alternative |
-|----------|-------------|-------------|
-| **GKE** | `gcp-cicd/` (Cloud Build + Cloud Deploy) | `jenkins-cicd/` (Jenkins) |
-| **Vanilla K8s** | `jenkins-cicd/` | - |
+| Platform | CI (빌드) | CD (배포) | GitOps |
+|----------|-----------|-----------|--------|
+| **GKE** | `gcp-cicd/` (Cloud Build) | Cloud Deploy | `common-gitops/` (ArgoCD) |
+| **Vanilla K8s** | `jenkins-cicd/` (Jenkins) | kubectl | `common-gitops/` (ArgoCD) |
 
-> **Note**: Jenkins는 GKE에서도 사용 가능합니다. 시간이 충분하다면 `jenkins-cicd/jenkins-pipeline/`을 GKE에서 실습해 보세요.
+---
+
+## 실습 순서
+
+### GKE 환경
+
+```
+1. gcp-cicd/          → Cloud Build로 이미지 빌드 및 배포
+2. common-gitops/     → ArgoCD로 GitOps 체험
+```
+
+### Vanilla K8s 환경
+
+```
+1. jenkins-cicd/jenkins-install/     → Jenkins 설치
+2. jenkins-cicd/jenkins-freestyle/   → Harbor 설치 + Freestyle 빌드
+3. jenkins-cicd/jenkins-pipeline/    → Pipeline 빌드
+4. common-gitops/                    → ArgoCD로 GitOps 체험
+```
 
 ---
 
 ## GKE Lab
 
-### Option 1: Cloud Build + Cloud Deploy (권장)
-
-GCP 네이티브 CI/CD로 빠르게 실습합니다.
+### CI/CD: Cloud Build + Cloud Deploy
 
 ```bash
 cd Module-4/gcp-cicd
-./setup.sh
 
-# Manual build
-gcloud builds submit --config=cloudbuild.yaml --region=YOUR_REGION
+# 1. 설정 (API 활성화, Registry 생성, Pipeline 생성, 권한 설정)
+./1-enable-apis.sh
+./2-create-registry.sh
+./3-create-pipeline.sh
+./4-grant-permissions.sh
 
-# Check deployment
+# 2. 빌드 및 배포
+./5-build-deploy.sh
+
+# 3. 확인
 kubectl get pods -l app=demo-app
 ```
 
 자세한 내용은 `gcp-cicd/README.md` 참조.
 
-### Option 2: Jenkins (시간 여유 시)
-
-Jenkins를 GKE에 설치하여 사용할 수도 있습니다.
+### GitOps: ArgoCD
 
 ```bash
-cd Module-4/jenkins-cicd/jenkins-install
-./install-jenkins.sh
+cd Module-4/common-gitops
 
-# jenkins-pipeline 실습 진행
+# 1. ArgoCD 설치
+./1-install-argocd/install-argocd.sh
+
+# 2. hj-dashboard 이미지 빌드
+cd hj-dashboard/app
+docker build -t YOUR_REGION-docker.pkg.dev/PROJECT_ID/cicd-repo/hj-dashboard:blue \
+  --build-arg=PHASE=blue .
+docker push YOUR_REGION-docker.pkg.dev/PROJECT_ID/cicd-repo/hj-dashboard:blue
+
+# 3. ArgoCD Application 생성
+kubectl apply -f 2-configure-app/application-gcp.yaml
+
+# 4. GitOps 시연 (강사가 SSF 저장소에서 이미지 태그 변경 → Push → 자동 배포)
 ```
+
+> **자율 학습**: Fork 후 직접 GitOps 체험은 `common-gitops/README.md` 참조
+
+자세한 내용은 `common-gitops/README.md` 참조.
 
 ---
 
@@ -70,7 +108,6 @@ cd Module-4/jenkins-cicd/jenkins-install
 cd Module-4/jenkins-cicd/jenkins-install
 ./install-jenkins.sh
 
-# Check Pod status
 kubectl get pods -n ci-cd -w
 ```
 
@@ -91,19 +128,56 @@ kubectl get svc jenkins -n ci-cd
 | `jenkins-pipeline/` | Groovy-based pipeline |
 | `jenkins-gitops/` | GitOps with Poll SCM |
 
+### 4. GitOps: ArgoCD
+
+```bash
+cd Module-4/common-gitops
+
+# 1. ArgoCD 설치
+./1-install-argocd/install-argocd.sh
+
+# 2. hj-dashboard 이미지 빌드
+cd hj-dashboard/app
+docker build -t 192.168.1.10:8443/library/hj-dashboard:blue \
+  --build-arg=PHASE=blue .
+docker push 192.168.1.10:8443/library/hj-dashboard:blue
+
+# 3. ArgoCD Application 생성
+kubectl apply -f 2-configure-app/application-vanilla.yaml
+
+# 4. GitOps 시연 (강사가 SSF 저장소에서 이미지 태그 변경 → Push → 자동 배포)
+```
+
+> **자율 학습**: Fork 후 직접 GitOps 체험은 `common-gitops/README.md` 참조
+
+---
+
+## Demo App: hj-dashboard
+
+Blue-Green 배포를 지원하는 데모 애플리케이션입니다.
+
+```bash
+# Blue 버전 빌드
+docker build -t hj-dashboard:blue --build-arg=PHASE=blue ./common-gitops/hj-dashboard/app/
+
+# Green 버전 빌드
+docker build -t hj-dashboard:green --build-arg=PHASE=green ./common-gitops/hj-dashboard/app/
+```
+
+자세한 내용은 `common-gitops/hj-dashboard/README.md` 참조.
+
 ---
 
 ## CI/CD Concepts
 
-### GKE vs Vanilla Comparison
+### 도구 비교
 
-| Item | GKE (Cloud Build) | Vanilla (Jenkins) |
-|------|-------------------|-------------------|
+| Item | GKE | Vanilla K8s |
+|------|-----|-------------|
 | CI Tool | Cloud Build | Jenkins Pipeline |
 | CD Tool | Cloud Deploy | kubectl |
 | Image Registry | Artifact Registry | Harbor |
-| Git Repository | Cloud Source Repos | GitHub |
-| GitOps Trigger | Cloud Build Trigger | Poll SCM |
+| GitOps Tool | ArgoCD | ArgoCD |
 
 ### CI (Continuous Integration)
 - Automatic build and test on code changes
@@ -116,22 +190,32 @@ kubectl get svc jenkins -n ci-cd
 ### GitOps
 - Git as Single Source of Truth
 - Declarative infrastructure management
-- Natural integration with Kubernetes
+- ArgoCD를 통한 자동 Sync
 
 ---
 
 ## Cleanup
 
-### GKE (Cloud Build)
+### GKE
 ```bash
+# Cloud Build 리소스
 cd Module-4/gcp-cicd
-# See README.md for cleanup commands
+./6-cleanup.sh
+
+# ArgoCD
+helm uninstall argocd -n argocd
+kubectl delete namespace argocd
 ```
 
-### Jenkins
+### Vanilla K8s
 ```bash
+# Jenkins
 helm uninstall jenkins -n ci-cd
 kubectl delete namespace ci-cd
+
+# ArgoCD
+helm uninstall argocd -n argocd
+kubectl delete namespace argocd
 ```
 
 ## Reference
@@ -139,3 +223,4 @@ kubectl delete namespace ci-cd
 - [Cloud Build Documentation](https://cloud.google.com/build/docs)
 - [Cloud Deploy Documentation](https://cloud.google.com/deploy/docs)
 - [Jenkins Documentation](https://www.jenkins.io/doc/)
+- [ArgoCD Documentation](https://argo-cd.readthedocs.io/)

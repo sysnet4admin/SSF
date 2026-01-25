@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../base
+
+# GCP Artifact Registry 이미지 사용
+# PROJECT_ID는 실제 프로젝트 ID로 변경 필요
+images:
+- name: hj-dashboard
+  newName: YOUR_REGION-docker.pkg.dev/PROJECT_ID/cicd-repo/hj-dashboard
+  newTag: blue
+
+commonLabels:
+  environment: gcp

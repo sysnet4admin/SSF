@@ -6,6 +6,10 @@ GitOps-based declarative deployment using Jenkins Poll SCM.
 
 > **Supported Platform**: Vanilla K8s only (GKE not supported)
 
+> **Note**: 실무에서는 ArgoCD가 GitOps 표준으로 널리 사용됩니다.
+> ArgoCD 기반 GitOps는 `common-gitops/` 폴더를 참고하세요.
+> 이 실습은 Jenkins 네이티브 환경을 선호하거나, ArgoCD 없이 간단히 GitOps를 체험하려는 경우에 적합합니다.
+
 ## GitOps Flow
 
 ```
