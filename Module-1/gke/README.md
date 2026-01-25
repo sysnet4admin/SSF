@@ -15,7 +15,8 @@ Google Cloud Platform의 관리형 쿠버네티스 서비스인 GKE를 사용하
 | 2 | `2-gcloud-auth.sh` | Google Cloud 인증 및 프로젝트 설정 |
 | 3 | `3-create-cluster.sh` | GKE 클러스터 생성 |
 | 4 | `4-connect-cluster.sh` | 클러스터 연결 (kubeconfig 설정) |
-| 5 | `5-delete-cluster.sh` | 클러스터 삭제 (비용 관리) |
+| 5 | `5-resize-cluster.sh` | 노드 수 조정 (비용 관리 - 권장) |
+| 6 | `6-delete-cluster.sh` | 클러스터 완전 삭제 |
 
 ## 클러스터 구성
 
@@ -71,9 +72,24 @@ GKE Standard 모드로 배포합니다.
 > **주의**: 네트워크 아웃바운드 트래픽 발생 시 추가 비용 발생 ($0.12/GB)
 
 ## 비용 관리 주의사항
-- 실습 후 반드시 클러스터 삭제 (`5-delete-cluster.sh`)
+- **실습 종료 후 비용 관리 (권장 순서)**:
+  1. **노드 수를 0으로 축소** (가장 권장) - 클러스터 설정은 유지하면서 VM 비용만 절감
+     ```bash
+     # 대화형 모드
+     ./5-resize-cluster.sh
+
+     # 또는 직접 지정 (Claude Code / 자동화 스크립트용)
+     ./5-resize-cluster.sh 0
+     ```
+  2. **재시작 시 노드 복구**
+     ```bash
+     ./5-resize-cluster.sh 2
+     ```
+  3. **더 이상 사용하지 않는 경우** 클러스터 완전 삭제 (`6-delete-cluster.sh`)
 - Spot VM 사용으로 일반 VM 대비 60~90% 비용 절감
 - 무료 크레딧 소진 시 자동 과금되지 않음 (결제 계정 미등록 시)
+
+> **Tip**: 노드 수를 0으로 만들면 Control Plane만 유지되어 무료 크레딧으로 비용이 거의 발생하지 않습니다.
 
 ## 참고
 - [GKE 공식 문서](https://cloud.google.com/kubernetes-engine/docs)
