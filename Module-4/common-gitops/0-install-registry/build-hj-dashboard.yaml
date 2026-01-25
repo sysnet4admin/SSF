@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko-build-blue
+  namespace: default
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:latest
+    args:
+    - "--dockerfile=Dockerfile"
+    - "--context=git://github.com/sysnet4admin/SSF.git#main:Module-4/common-gitops/hj-dashboard/app"
+    - "--destination=192.168.1.13:5000/hj-dashboard:blue"
+    - "--build-arg=PHASE=blue"
+    - "--insecure"
+    - "--skip-tls-verify"
+  restartPolicy: Never
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko-build-green
+  namespace: default
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:latest
+    args:
+    - "--dockerfile=Dockerfile"
+    - "--context=git://github.com/sysnet4admin/SSF.git#main:Module-4/common-gitops/hj-dashboard/app"
+    - "--destination=192.168.1.13:5000/hj-dashboard:green"
+    - "--build-arg=PHASE=green"
+    - "--insecure"
+    - "--skip-tls-verify"
+  restartPolicy: Never
