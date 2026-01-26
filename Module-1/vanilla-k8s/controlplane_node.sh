@@ -44,6 +44,9 @@ mkdir -p /home/vagrant/.kube
 cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
 chown -R vagrant:vagrant /home/vagrant/.kube
 
+# Set default namespace for vagrant user
+sudo -u vagrant kubectl config set-context --current --namespace=default
+
 # Create vagrant user's .claude directory
 mkdir -p /home/vagrant/.claude
 chown -R vagrant:vagrant /home/vagrant/.claude
