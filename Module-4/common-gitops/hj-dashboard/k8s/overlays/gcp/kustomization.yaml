@@ -5,10 +5,10 @@ resources:
 - ../../base
 
 # GCP Artifact Registry 이미지 사용
-# PROJECT_ID는 실제 프로젝트 ID로 변경 필요
+# YOUR_PROJECT_ID는 실제 프로젝트 ID로 변경 필요
 images:
-- name: hj-dashboard
-  newName: YOUR_REGION-docker.pkg.dev/PROJECT_ID/cicd-repo/hj-dashboard
+- name: docker.io/library/hj-dashboard
+  newName: YOUR_REGION-docker.pkg.dev/YOUR_PROJECT_ID/cicd-repo/hj-dashboard
   newTag: blue
 
 commonLabels:

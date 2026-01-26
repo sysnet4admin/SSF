@@ -1,15 +1,15 @@
 # hj-dashboard
 
-## 개요
+## Overview
 
 CI/CD 및 GitOps 실습을 위한 데모 애플리케이션입니다.
-Blue-Green 배포를 지원하며, 빌드 시 색상을 선택할 수 있습니다.
+Blue-Green 배포를 지원하며, 빌드 시 색상(PHASE)을 선택할 수 있습니다.
 
-## 구조
+## Structure
 
 ```
 hj-dashboard/
-├── app/                    # 애플리케이션 소스
+├── app/                    # 애플리케이션 소스 (Next.js)
 │   ├── Dockerfile
 │   ├── src/
 │   ├── public/
@@ -25,55 +25,46 @@ hj-dashboard/
         └── vanilla/        # Vanilla K8s (Harbor)
 ```
 
-## 이미지 빌드
+## Build (GKE)
 
-### Blue 버전
-
-```bash
-cd app/
-docker build -t hj-dashboard:blue --build-arg=PHASE=blue .
-```
-
-### Green 버전
+스크립트 사용 (권장):
 
 ```bash
-cd app/
-docker build -t hj-dashboard:green --build-arg=PHASE=green .
+cd ~/SSF/Module-4/common-gitops
+
+# Blue 버전
+./3-build-push-image.sh blue
+
+# Green 버전
+./3-build-push-image.sh green
 ```
 
-## 레지스트리별 빌드 & 푸시
-
-### GKE (Artifact Registry)
+수동 빌드 (Cloud Build):
 
 ```bash
-# Blue
-docker build -t YOUR_REGION-docker.pkg.dev/PROJECT_ID/cicd-repo/hj-dashboard:blue \
-  --build-arg=PHASE=blue ./app/
-docker push YOUR_REGION-docker.pkg.dev/PROJECT_ID/cicd-repo/hj-dashboard:blue
+cd ~/SSF/Module-4/common-gitops/hj-dashboard/app
 
-# Green
-docker build -t YOUR_REGION-docker.pkg.dev/PROJECT_ID/cicd-repo/hj-dashboard:green \
-  --build-arg=PHASE=green ./app/
-docker push YOUR_REGION-docker.pkg.dev/PROJECT_ID/cicd-repo/hj-dashboard:green
+# Blue 버전
+gcloud builds submit \
+  --tag=YOUR_REGION-docker.pkg.dev/PROJECT_ID/cicd-repo/hj-dashboard:blue \
+  --region=YOUR_REGION .
+
+# Green 버전
+gcloud builds submit \
+  --tag=YOUR_REGION-docker.pkg.dev/PROJECT_ID/cicd-repo/hj-dashboard:green \
+  --region=YOUR_REGION .
 ```
 
-### Vanilla K8s (Harbor)
+## Deploy
+
+스크립트 사용 (권장):
 
 ```bash
-# Blue
-docker build -t 192.168.1.10:8443/library/hj-dashboard:blue \
-  --build-arg=PHASE=blue ./app/
-docker push 192.168.1.10:8443/library/hj-dashboard:blue
-
-# Green
-docker build -t 192.168.1.10:8443/library/hj-dashboard:green \
-  --build-arg=PHASE=green ./app/
-docker push 192.168.1.10:8443/library/hj-dashboard:green
+cd ~/SSF/Module-4/common-gitops
+./4-create-application.sh
 ```
 
-## 배포
-
-### Kustomize 직접 사용
+Kustomize 직접 사용:
 
 ```bash
 # GKE
@@ -83,25 +74,37 @@ kubectl apply -k k8s/overlays/gcp/
 kubectl apply -k k8s/overlays/vanilla/
 ```
 
-### ArgoCD 사용
+## Blue-Green Deployment
 
-`../2-configure-app/` 참조
-
-## Blue-Green 전환
-
-`k8s/overlays/*/kustomization.yaml`에서 이미지 태그 변경:
+`k8s/overlays/gcp/kustomization.yaml`에서 이미지 태그 변경:
 
 ```yaml
 images:
-- name: hj-dashboard
-  newName: <registry>/hj-dashboard
-  newTag: green   # blue → green 변경
+- name: docker.io/library/hj-dashboard
+  newName: YOUR_REGION-docker.pkg.dev/PROJECT_ID/cicd-repo/hj-dashboard
+  newTag: green   # blue → green
 ```
 
-## 삭제
+변경 후 재배포:
+
+```bash
+./4-create-application.sh
+```
+
+## Cleanup
 
 ```bash
 kubectl delete -k k8s/overlays/gcp/
 # 또는
-kubectl delete -k k8s/overlays/vanilla/
+kubectl delete deployment hj-dashboard
+kubectl delete svc hj-dashboard-svc
 ```
+
+## Application Details
+
+| 항목 | 값 |
+|------|---|
+| Framework | Next.js 14 |
+| Port | 3000 |
+| Replicas | 2 |
+| Service Type | LoadBalancer |

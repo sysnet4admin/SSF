@@ -1,176 +1,259 @@
-# Common GitOps (ArgoCD)
+# Common GitOps (ArgoCD + Kustomize)
 
-## 개요
+## Overview
 
-ArgoCD를 사용한 GitOps 기반 배포 실습입니다.
+ArgoCD와 Kustomize를 사용한 GitOps 기반 배포 실습입니다.
 
-> **지원 플랫폼**: GKE, Vanilla K8s 모두 지원
+> **Supported Platform**: GKE
 
-## GitOps란?
-
-Git 저장소를 Single Source of Truth로 사용하여 인프라와 애플리케이션을 선언적으로 관리하는 방식입니다.
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        GitOps 흐름                               │
+│                     GitOps CI/CD Pipeline                        │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   [개발자]                                                       │
-│      │                                                          │
-│      ▼                                                          │
-│   [Git Push] ──→ [GitHub 저장소] ──→ [ArgoCD 감지]               │
-│                         │                    │                  │
-│                         ▼                    ▼                  │
-│                  [매니페스트 변경]     [자동 Sync]                 │
-│                                              │                  │
-│                                              ▼                  │
-│                                      [Kubernetes 배포]          │
+│  [1] ArgoCD 설치                                                 │
+│        │                                                        │
+│        ▼                                                        │
+│  [2] Artifact Registry 생성                                      │
+│        │                                                        │
+│        ▼                                                        │
+│  [3] Cloud Build로 이미지 빌드 → Artifact Registry Push          │
+│        │                                                        │
+│        ▼                                                        │
+│  [4] Kustomize로 GKE 배포                                        │
+│        │                                                        │
+│        ▼                                                        │
+│  [5] 배포 확인 (ArgoCD UI에서 모니터링 가능)                       │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## 폴더 구조
+## Folder Structure
 
 ```
 common-gitops/
-├── README.md
-├── 1-install-argocd/           # Step 1: ArgoCD 설치
-│   ├── README.md
-│   └── install-argocd.sh
-│
-├── 2-configure-app/            # Step 2: Application 설정
-│   ├── README.md
-│   ├── application-gcp.yaml    # GKE용
-│   └── application-vanilla.yaml # Vanilla K8s용
-│
-└── hj-dashboard/               # 데모 앱 (소스 + 매니페스트)
-    ├── README.md
-    ├── app/                    # 빌드용 소스
-    └── k8s/                    # ArgoCD Sync 대상
+├── common-functions.sh      # 공통 함수 (GCP 정보 조회)
+├── 1-install-argocd.sh      # ArgoCD 설치
+├── 2-create-registry.sh     # Artifact Registry 생성
+├── 3-build-push-image.sh    # hj-dashboard 이미지 빌드/푸시
+├── 4-create-application.sh  # Kustomize로 배포
+├── 5-verify-deployment.sh   # 배포 확인
+├── 6-cleanup.sh             # 리소스 정리
+├── hj-dashboard/            # 데모 앱
+│   ├── app/                 # 소스 코드 (Next.js)
+│   └── k8s/                 # Kubernetes 매니페스트
+│       ├── base/            # 기본 매니페스트
+│       └── overlays/        # 환경별 설정
+│           ├── gcp/         # GKE용
+│           └── vanilla/     # Vanilla K8s용
+├── _reference/              # 참조 파일 (이전 버전)
+└── README.md
 ```
 
-## 실습 순서
+## Prerequisites
+
+- GKE 클러스터 생성 완료 (Module-1/gke 참고)
+- gcloud CLI 인증 완료
+- kubectl이 GKE 클러스터에 연결됨
+- Helm 설치됨
+
+---
+
+## Lab Steps
 
 ### Step 1: ArgoCD 설치
 
 ```bash
-cd 1-install-argocd/
-./install-argocd.sh
+cd ~/SSF/Module-4/common-gitops
+./1-install-argocd.sh
 ```
 
-### Step 2: 이미지 빌드 (선택)
+**수행 작업:**
+- argocd 네임스페이스 생성
+- Helm으로 ArgoCD 설치
+- LoadBalancer 서비스 생성
+- 초기 admin 비밀번호 출력
 
-CI/CD 실습에서 이미 빌드한 경우 생략 가능합니다.
+### Step 2: Artifact Registry 생성
 
 ```bash
-cd hj-dashboard/app/
-
-# GKE
-docker build -t YOUR_REGION-docker.pkg.dev/PROJECT_ID/cicd-repo/hj-dashboard:blue \
-  --build-arg=PHASE=blue .
-
-# Vanilla K8s
-docker build -t 192.168.1.10:8443/library/hj-dashboard:blue \
-  --build-arg=PHASE=blue .
+./2-create-registry.sh
 ```
 
-### Step 3: ArgoCD Application 생성
+**수행 작업:**
+- Artifact Registry API 활성화
+- `cicd-repo` Docker 저장소 생성
+- Docker 인증 설정
+
+### Step 3: 이미지 빌드 및 푸시
 
 ```bash
-cd 2-configure-app/
-
-# GKE
-kubectl apply -f application-gcp.yaml
-
-# Vanilla K8s
-kubectl apply -f application-vanilla.yaml
+./3-build-push-image.sh [TAG]
+# 예: ./3-build-push-image.sh blue
 ```
 
-### Step 4: GitOps 시연 (강사 데모)
+**수행 작업:**
+- Cloud Build로 hj-dashboard 이미지 빌드
+- Artifact Registry에 이미지 푸시
+- kustomization.yaml에 실제 PROJECT_ID 반영
 
-강사가 SSF 저장소를 직접 수정하여 GitOps 흐름을 시연합니다.
+### Step 4: 배포
 
-1. **이미지 태그 변경** (Blue → Green)
-   ```bash
-   # hj-dashboard/k8s/overlays/*/kustomization.yaml 수정
-   # newTag: blue → newTag: green
+```bash
+./4-create-application.sh
+```
 
-   git add .
-   git commit -m "Change to green"
-   git push
-   ```
+**수행 작업:**
+- Kustomize를 사용하여 hj-dashboard 배포
+- Deployment, Service 생성
 
-2. **ArgoCD 자동 Sync 확인**
-   - ArgoCD UI에서 Sync 상태 확인
-   - Pod 이미지가 green으로 변경됨
+### Step 5: 배포 확인
+
+```bash
+./5-verify-deployment.sh
+```
+
+**확인 항목:**
+- Pod 상태 (Running)
+- Service External IP
+- ArgoCD UI 접속 정보
+
+### Step 6: 정리 (선택)
+
+```bash
+./6-cleanup.sh
+```
+
+**삭제 항목:**
+- hj-dashboard Deployment/Service
+- ArgoCD
+- Artifact Registry
 
 ---
 
-## (자율 학습) 직접 GitOps 체험하기
-
-시간적 여유가 있는 학습자는 다음 과정을 통해 직접 GitOps를 체험할 수 있습니다.
-
-1. **SSF 저장소 Fork**
-   - GitHub에서 본인 계정으로 Fork
-
-2. **Application YAML 수정**
-   - `repoURL`을 본인 Fork 저장소로 변경
-   ```yaml
-   source:
-     repoURL: https://github.com/<YOUR_USERNAME>/SSF
-   ```
-
-3. **매니페스트 수정 → Push → 자동 배포 확인**
-
-## 플랫폼별 비교
-
-| 항목 | GKE | Vanilla K8s |
-|------|-----|-------------|
-| 이미지 레지스트리 | Artifact Registry | Harbor |
-| Application YAML | `application-gcp.yaml` | `application-vanilla.yaml` |
-| Overlay | `k8s/overlays/gcp/` | `k8s/overlays/vanilla/` |
-
-## CI/CD + GitOps 통합 흐름
-
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│ 완전한 CI/CD + GitOps 파이프라인                                          │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  [소스 코드 변경]                                                         │
-│        │                                                                │
-│        ▼                                                                │
-│  [CI: 이미지 빌드]  ──→  Cloud Build (GKE) / Jenkins (Vanilla)           │
-│        │                                                                │
-│        ▼                                                                │
-│  [이미지 Push]  ──→  Artifact Registry (GKE) / Harbor (Vanilla)         │
-│        │                                                                │
-│        ▼                                                                │
-│  [매니페스트 업데이트]  ──→  k8s/overlays/*/kustomization.yaml            │
-│        │                                                                │
-│        ▼                                                                │
-│  [Git Push]                                                             │
-│        │                                                                │
-│        ▼                                                                │
-│  [ArgoCD Sync]  ──→  Kubernetes 자동 배포                                │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
-```
-
-## 삭제
+## Quick Start (전체 실행)
 
 ```bash
-# Application 삭제
-kubectl delete -f 2-configure-app/application-gcp.yaml
-# 또는
-kubectl delete -f 2-configure-app/application-vanilla.yaml
+cd ~/SSF/Module-4/common-gitops
+
+# 1. ArgoCD 설치
+./1-install-argocd.sh
+
+# 2. Artifact Registry 생성
+./2-create-registry.sh
+
+# 3. 이미지 빌드 및 푸시
+./3-build-push-image.sh blue
+
+# 4. 배포
+./4-create-application.sh
+
+# 5. 확인
+./5-verify-deployment.sh
+```
+
+---
+
+## Demo App: hj-dashboard
+
+Blue-Green 배포를 지원하는 Next.js 기반 데모 애플리케이션입니다.
+
+### 이미지 태그
+
+| Tag | 설명 |
+|-----|------|
+| `blue` | Blue 버전 (기본) |
+| `green` | Green 버전 |
+
+### Blue-Green 배포 시연
+
+```bash
+# Green 버전 빌드 및 배포
+./3-build-push-image.sh green
+
+# kustomization.yaml 태그 변경 후 재배포
+sed -i 's/newTag: blue/newTag: green/' hj-dashboard/k8s/overlays/gcp/kustomization.yaml
+./4-create-application.sh
+```
+
+---
+
+## Access URLs
+
+배포 완료 후 접속 URL 확인:
+
+```bash
+# hj-dashboard
+kubectl get svc hj-dashboard-svc
+# http://<EXTERNAL-IP>:3000
+
+# ArgoCD UI
+kubectl get svc argocd-server -n argocd
+# http://<EXTERNAL-IP>
+
+# ArgoCD 비밀번호
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+
+---
+
+## Troubleshooting
+
+### 이미지 Pull 실패 (ImagePullBackOff)
+
+```bash
+# 이미지 확인
+kubectl describe pod -l app=hj-dashboard | grep -A5 "Events:"
+
+# kustomization.yaml 확인
+cat hj-dashboard/k8s/overlays/gcp/kustomization.yaml
+
+# 이미지 존재 확인
+gcloud artifacts docker images list YOUR_REGION-docker.pkg.dev/$(gcloud config get-value project)/cicd-repo
+```
+
+### ArgoCD 비밀번호 분실
+
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+
+### External IP Pending
+
+```bash
+# 잠시 대기 후 다시 확인
+kubectl get svc -w
+```
+
+---
+
+## Cleanup
+
+```bash
+./6-cleanup.sh
+```
+
+또는 수동 삭제:
+
+```bash
+# hj-dashboard 삭제
+kubectl delete deployment hj-dashboard
+kubectl delete svc hj-dashboard-svc
 
 # ArgoCD 삭제
 helm uninstall argocd -n argocd
 kubectl delete namespace argocd
+
+# Artifact Registry 삭제
+gcloud artifacts repositories delete cicd-repo --location=YOUR_REGION --quiet
 ```
 
-## 참고
+---
+
+## Reference
 
 - [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
-- [GitOps Guide (Korean)](https://yozm.wishket.com/magazine/detail/2010/)
+- [Kustomize Documentation](https://kustomize.io/)
+- [Cloud Build Documentation](https://cloud.google.com/build/docs)

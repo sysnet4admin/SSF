@@ -41,3 +41,4 @@ Gen*/
 # Module-4 gcp-cicd runtime files
 Module-4/gcp-cicd/clouddeploy.yaml.original
 Module-4/gcp-cicd/clouddeploy.yaml.bak
+Module-4/common-gitops.backup.*/
