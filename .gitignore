@@ -337,3 +337,4 @@ coverage/
 # my_local_config.yaml
 # scratch/
 # notes/
+.gitignore.backup.*
