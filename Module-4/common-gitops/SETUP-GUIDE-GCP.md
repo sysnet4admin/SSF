@@ -75,13 +75,15 @@ kubectl get svc argocd-server -n argocd
 
 ### ArgoCD 접속 정보
 
-| 항목 | 값 |
-|------|-----|
-| URL | http://<ARGOCD_EXTERNAL_IP> |
-| Username | admin |
-| Password | <ARGOCD_PASSWORD> |
+```bash
+# ArgoCD UI 주소 확인
+kubectl get svc argocd-server -n argocd -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 
-> 비밀번호 재확인: `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d`
+# 사용자명: admin
+
+# 비밀번호 확인
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
 
 ---
 
@@ -184,7 +186,7 @@ steps:
     args:
       - 'build'
       - '-t'
-      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/${_IMAGE}:${_VERSION}'
+      - 'YOUR_REGION-docker.pkg.dev/YOUR_PROJECT_ID/cicd-repo/demo-app:v1'
       - './app'
 
   # 2. Artifact Registry로 Push
