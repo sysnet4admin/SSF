@@ -1,44 +1,339 @@
-# Vagrant
-.vagrant/
+# ============================================
+# SSF (Kubernetes Course) .gitignore
+# ============================================
 
-# macOS
+# ============================================
+# OS Generated Files
+# ============================================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 *.textClipping
 
-# IDE
+# ============================================
+# IDE & Editors
+# ============================================
+# JetBrains IDEs
 .idea/
+*.iml
+*.iws
+*.ipr
+
+# VS Code
 .vscode/
+*.code-workspace
+
+# Vim
 *.swp
 *.swo
+*~
+.*.swp
+.*.swo
 
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ============================================
+# Vagrant
+# ============================================
+.vagrant/
+*.box
+
+# ============================================
+# Python
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# PyCharm
+.idea/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# ============================================
+# Node.js
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+.eslintcache
+.node_repl_history
+*.tgz
+.yarn-integrity
+
+# Optional: Uncomment if you don't want to track package-lock.json
+# package-lock.json
+# yarn.lock
+
+# ============================================
+# Build Outputs & Artifacts
+# ============================================
+dist/
+build/
+out/
+target/
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+
+# ============================================
 # Logs
+# ============================================
 *.log
+logs/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
-# Temporary files
+# ============================================
+# Testing
+# ============================================
+.coverage
+.pytest_cache/
+.tox/
+htmlcov/
+coverage/
+*.cover
+.hypothesis/
+
+# ============================================
+# Temporary Files
+# ============================================
 *.tmp
 *.temp
+*.cache
+.cache/
+tmp/
+temp/
 
-# PPT files and backups
+# ============================================
+# Backup Files
+# ============================================
+*.bak
+*.backup
+*.old
+*.orig
+*.swp
+*.swo
+*~
+*.bkp
+
+# ============================================
+# Archives
+# ============================================
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.gz
+*.bz2
+*.xz
+
+# ============================================
+# Documents & Presentations (Project Specific)
+# ============================================
+# PowerPoint files
+*.ppt
+*.pptx
+*.pptm
 ppt/
 pptx/
 ppt_backup/
+PPT_*/
 
-# Python
-__pycache__/
-*.pyc
-.venv/
-venv/
-.env
+# Word documents (if not needed)
+# *.doc
+# *.docx
 
+# Excel files (if not needed)
+# *.xls
+# *.xlsx
+
+# PDF files (if not needed)
+# *.pdf
+
+# ============================================
+# Project-Specific: PPT Generation
+# ============================================
 # PPT generation scripts
 ppt_utils.py
+generate_ppt*.py
+gen*.py
 session*.py
-scripts/
+scripts/ppt/
+temp_*.py
 
-# Backup folders (Gen1, Gen2, etc.)
+# PPT documentation
+GEN*.md
+ALL_GENERATIONS_SUMMARY.md
+*_CONCEPT.md
+*_PROGRESS.md
+*_SUMMARY.md
+
+# ============================================
+# Project-Specific: Backup Folders
+# ============================================
 Gen*/
+Gen1/
+Gen2/
+backup/
+backups/
+*.backup/
+*_backup/
+*.backup.*/
+common-gitops.backup.*/
 
-# Module-4 gcp-cicd runtime files
+# ============================================
+# Kubernetes & Docker
+# ============================================
+# Secrets and sensitive data
+*.key
+*.pem
+*.crt
+*.cer
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# Kubeconfig (if storing locally)
+# kubeconfig
+# *.kubeconfig
+
+# Docker
+docker-compose.override.yml
+
+# Helm
+charts/*.tgz
+
+# ============================================
+# Cloud Provider Specific
+# ============================================
+# GCP
+.gcloud/
+gcloud-credentials.json
+*-service-account.json
+*-key.json
+
+# AWS
+.aws/
+*.pem
+
+# Azure
+.azure/
+
+# ============================================
+# Module-Specific Runtime Files
+# ============================================
+# Module-4 GCP CI/CD
 Module-4/gcp-cicd/clouddeploy.yaml.original
 Module-4/gcp-cicd/clouddeploy.yaml.bak
+Module-4/gcp-cicd/*.original
+Module-4/gcp-cicd/*.bak
+
+# Module-4 Common GitOps
 Module-4/common-gitops.backup.*/
+Module-4/common-gitops/*.original
+Module-4/common-gitops/*.bak
+
+# ============================================
+# Miscellaneous
+# ============================================
+# Compiled binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.envrc
+
+# Certificates and Keys (general)
+*.csr
+*.key
+*.cert
+*.pem
+*.crt
+*.p12
+*.pfx
+
+# Lock files (optional - uncomment if needed)
+# Gemfile.lock
+# poetry.lock
+# Pipfile.lock
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# ============================================
+# User-specific files (add as needed)
+# ============================================
+# Add your own patterns here
+# my_local_config.yaml
+# scratch/
+# notes/
