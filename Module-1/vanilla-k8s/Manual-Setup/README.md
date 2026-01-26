@@ -5,6 +5,17 @@
 
 VM만 생성하고, 쿠버네티스 설정은 수동으로 진행하는 방법입니다.
 
+## 최신 업데이트 (2026-01)
+
+현재 스크립트는 다음 기능들을 포함합니다:
+- **Kubernetes**: v1.35.0
+- **Containerd**: v2.2.1
+- **CSI Driver NFS**: v4.12.1 (동적 볼륨 프로비저닝)
+- **MetalLB**: v0.15.3 (LoadBalancer 서비스 타입 지원)
+- **Helm**: v4.0.4
+- **개발 도구**: Node.js 22, Claude Code, kubectx/kubens, kube-ps1, fzf
+- **SSF 리포지토리**: 자동 클론 (`/home/vagrant/SSF`)
+
 ## 사전 요구사항
 
 다음 소프트웨어가 설치되어 있어야 합니다:
@@ -16,15 +27,18 @@ VM만 생성하고, 쿠버네티스 설정은 수동으로 진행하는 방법�
 ## 폴더 구조
 
 ```
-Manual-Setup/
-├── README.md              # 이 가이드
-├── Vagrantfile            # provision 없는 간소화 버전
+vanilla-k8s/
+├── Manual-Setup/
+│   ├── README.md          # 이 가이드
+│   └── Vagrantfile        # provision 없는 간소화 버전
 ├── k8s_env_build.sh       # 환경 구성 스크립트
 ├── k8s_pkg_cfg.sh         # 패키지 설치 스크립트
 ├── controlplane_node.sh   # Control Plane 초기화 스크립트
 ├── worker_nodes.sh        # Worker 조인 스크립트
-└── extra_k8s_pkgs.sh      # 추가 패키지 설치 (helm, metallb, ingress 등)
+└── extra_k8s_pkgs.sh      # 추가 패키지 설치 (CSI NFS, MetalLB, Helm 등)
 ```
+
+> **참고**: 실제 스크립트 파일들은 상위 디렉토리(`../`)에 있으며, 이 파일들을 각 VM에 업로드하여 사용합니다.
 
 ## 클러스터 구성
 
@@ -36,6 +50,8 @@ Manual-Setup/
 | Worker 3 | w3-k8s-1.35.0 | w3-k8s | 192.168.1.103 | 60103 | 1 | 2048MB |
 
 **VirtualBox 그룹**: `/SSF-k8s-U1.35.0-ctrd-2.2(manual)`
+
+> **참고**: 자동 프로비저닝을 사용하는 상위 디렉토리의 Vagrantfile은 더 높은 스펙(CP: CPU 4, Worker: CPU 2/Memory 3072MB)을 사용합니다.
 
 ## 네트워크 구성
 
@@ -72,29 +88,29 @@ vagrant up
 
 ## 2단계: 스크립트 파일 업로드
 
-각 VM에 스크립트 파일을 업로드합니다.
+상위 디렉토리(`../`)에 있는 스크립트 파일들을 각 VM에 업로드합니다.
 
 ```cmd
 :: Control Plane
-vagrant upload k8s_env_build.sh /home/vagrant/k8s_env_build.sh cp-k8s-1.35.0
-vagrant upload k8s_pkg_cfg.sh /home/vagrant/k8s_pkg_cfg.sh cp-k8s-1.35.0
-vagrant upload controlplane_node.sh /home/vagrant/controlplane_node.sh cp-k8s-1.35.0
-vagrant upload extra_k8s_pkgs.sh /home/vagrant/extra_k8s_pkgs.sh cp-k8s-1.35.0
+vagrant upload ../k8s_env_build.sh /home/vagrant/k8s_env_build.sh cp-k8s-1.35.0
+vagrant upload ../k8s_pkg_cfg.sh /home/vagrant/k8s_pkg_cfg.sh cp-k8s-1.35.0
+vagrant upload ../controlplane_node.sh /home/vagrant/controlplane_node.sh cp-k8s-1.35.0
+vagrant upload ../extra_k8s_pkgs.sh /home/vagrant/extra_k8s_pkgs.sh cp-k8s-1.35.0
 
 :: Worker 1
-vagrant upload k8s_env_build.sh /home/vagrant/k8s_env_build.sh w1-k8s-1.35.0
-vagrant upload k8s_pkg_cfg.sh /home/vagrant/k8s_pkg_cfg.sh w1-k8s-1.35.0
-vagrant upload worker_nodes.sh /home/vagrant/worker_nodes.sh w1-k8s-1.35.0
+vagrant upload ../k8s_env_build.sh /home/vagrant/k8s_env_build.sh w1-k8s-1.35.0
+vagrant upload ../k8s_pkg_cfg.sh /home/vagrant/k8s_pkg_cfg.sh w1-k8s-1.35.0
+vagrant upload ../worker_nodes.sh /home/vagrant/worker_nodes.sh w1-k8s-1.35.0
 
 :: Worker 2
-vagrant upload k8s_env_build.sh /home/vagrant/k8s_env_build.sh w2-k8s-1.35.0
-vagrant upload k8s_pkg_cfg.sh /home/vagrant/k8s_pkg_cfg.sh w2-k8s-1.35.0
-vagrant upload worker_nodes.sh /home/vagrant/worker_nodes.sh w2-k8s-1.35.0
+vagrant upload ../k8s_env_build.sh /home/vagrant/k8s_env_build.sh w2-k8s-1.35.0
+vagrant upload ../k8s_pkg_cfg.sh /home/vagrant/k8s_pkg_cfg.sh w2-k8s-1.35.0
+vagrant upload ../worker_nodes.sh /home/vagrant/worker_nodes.sh w2-k8s-1.35.0
 
 :: Worker 3
-vagrant upload k8s_env_build.sh /home/vagrant/k8s_env_build.sh w3-k8s-1.35.0
-vagrant upload k8s_pkg_cfg.sh /home/vagrant/k8s_pkg_cfg.sh w3-k8s-1.35.0
-vagrant upload worker_nodes.sh /home/vagrant/worker_nodes.sh w3-k8s-1.35.0
+vagrant upload ../k8s_env_build.sh /home/vagrant/k8s_env_build.sh w3-k8s-1.35.0
+vagrant upload ../k8s_pkg_cfg.sh /home/vagrant/k8s_pkg_cfg.sh w3-k8s-1.35.0
+vagrant upload ../worker_nodes.sh /home/vagrant/worker_nodes.sh w3-k8s-1.35.0
 ```
 
 ---
@@ -113,14 +129,18 @@ sudo ./k8s_pkg_cfg.sh 1.35.0-1.1 2.2.1-1~ubuntu.22.04~jammy CP
 sudo ./controlplane_node.sh
 ```
 
-vagrant 유저용 kubeconfig 설정:
-```bash
-mkdir -p ~/.kube
-sudo cp /etc/kubernetes/admin.conf ~/.kube/config
-sudo chown $(id -u):$(id -g) ~/.kube/config
-```
+`controlplane_node.sh`는 다음을 자동으로 설정합니다:
+- Kubernetes 클러스터 초기화 (kubeadm init)
+- Calico CNI 설치
+- kubectl 자동완성 및 kubectx/kubens 설치
+- kube-ps1 (Kubernetes 프롬프트)
+- fzf (fuzzy finder)
+- Node.js 22 및 Claude Code 설치
+- SSF 리포지토리 클론 (`/home/vagrant/SSF`)
+- vagrant 사용자용 kubeconfig 및 .bashrc 설정
+- kubectl alias 및 커스텀 명령어
 
-추가 패키지 설치 (helm, metallb, ingress, nfs 등):
+추가 패키지 설치 (CSI Driver NFS, MetalLB, Helm 등):
 ```bash
 sudo ./extra_k8s_pkgs.sh
 ```
@@ -130,6 +150,19 @@ sudo ./extra_k8s_pkgs.sh
 kubectl get nodes
 kubectl get pods -A
 ```
+
+vagrant 사용자로 전환하여 추가 도구 사용:
+```bash
+su - vagrant
+# 또는 exit 후 다시 접속: ssh -p 60010 vagrant@127.0.0.1
+```
+
+vagrant 사용자는 다음을 사용할 수 있습니다:
+- `k` (kubectl 별칭), `kx` (kubectx), `kn` (kubens)
+- `kg-po-ip-stat-no` (Pod 정보 커스텀 출력)
+- `claude-skip` (Claude Code 실행)
+- `~/SSF` (SSF 리포지토리)
+- Kubernetes 프롬프트 (kube-ps1)
 
 **완료 후 exit로 SSH 종료**
 
@@ -261,11 +294,12 @@ ssh -p 60010 vagrant@127.0.0.1
 - kubeadm join
 
 **extra_k8s_pkgs.sh 주요 작업:**
-- Helm 설치
-- MetalLB 설치 및 설정
-- Nginx Ingress Controller 설치
-- Metrics Server 설치
-- NFS Provisioner 설치
+- NFS Server 구성 (`/nfs_shared/dynamic-vol`)
+- CSI Driver NFS 설치 (v4.12.1)
+- StorageClass 생성 (managed-nfs-storage, default)
+- MetalLB 설치 및 L2 구성 (v0.15.3, IP 풀: 192.168.1.11-99)
+- Helm 설치 (v4.0.4)
+- Helm 리포지토리 추가 (edu)
 
 ---
 
