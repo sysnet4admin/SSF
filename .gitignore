@@ -338,3 +338,6 @@ coverage/
 # scratch/
 # notes/
 .gitignore.backup.*
+
+# Claude Code session context (temporary)
+.claude-session-context.md
