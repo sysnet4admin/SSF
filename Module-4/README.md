@@ -4,7 +4,7 @@
 
 CI/CD pipeline implementation on Kubernetes.
 
-> **Prerequisites**: Helm and edu repository must be installed from Module-3.
+> **Prerequisites**: Helm and edu repository must be installed from Module-1 (클러스터 구성 시 자동 설치).
 
 ## Folder Structure
 
@@ -18,8 +18,13 @@ Module-4/
 │   ├── jenkins-gitops/
 │   └── _reference/
 └── common-gitops/          # 공통 GitOps (ArgoCD) - GKE/Vanilla 모두 지원
-    ├── 1-install-argocd/
-    ├── 2-configure-app/
+    ├── 1-install-argocd.sh
+    ├── 2-create-registry.sh
+    ├── 3-build-push-image.sh
+    ├── 4-create-application.sh
+    ├── 5-verify-deployment.sh
+    ├── 6-cleanup.sh
+    ├── _reference/         # 수동 실습용 YAML/스크립트 참조
     └── hj-dashboard/       # 데모 앱 (Blue-Green 지원)
 ```
 
@@ -80,7 +85,7 @@ kubectl get pods -l app=demo-app
 cd Module-4/common-gitops
 
 # 1. ArgoCD 설치
-./1-install-argocd/install-argocd.sh
+./1-install-argocd.sh
 
 # 2. hj-dashboard 이미지 빌드
 cd hj-dashboard/app
@@ -89,7 +94,7 @@ docker build -t YOUR_REGION-docker.pkg.dev/PROJECT_ID/cicd-repo/hj-dashboard:blu
 docker push YOUR_REGION-docker.pkg.dev/PROJECT_ID/cicd-repo/hj-dashboard:blue
 
 # 3. ArgoCD Application 생성
-kubectl apply -f 2-configure-app/application-gcp.yaml
+kubectl apply -f _reference/2-configure-app/application-gcp.yaml
 
 # 4. GitOps 시연 (강사가 SSF 저장소에서 이미지 태그 변경 → Push → 자동 배포)
 ```
@@ -134,7 +139,7 @@ kubectl get svc jenkins -n ci-cd
 cd Module-4/common-gitops
 
 # 1. ArgoCD 설치
-./1-install-argocd/install-argocd.sh
+./1-install-argocd.sh
 
 # 2. hj-dashboard 이미지 빌드
 cd hj-dashboard/app
@@ -143,7 +148,7 @@ docker build -t 192.168.1.10:8443/library/hj-dashboard:blue \
 docker push 192.168.1.10:8443/library/hj-dashboard:blue
 
 # 3. ArgoCD Application 생성
-kubectl apply -f 2-configure-app/application-vanilla.yaml
+kubectl apply -f _reference/2-configure-app/application-vanilla.yaml
 
 # 4. GitOps 시연 (강사가 SSF 저장소에서 이미지 태그 변경 → Push → 자동 배포)
 ```
