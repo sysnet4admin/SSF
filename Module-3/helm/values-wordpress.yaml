@@ -1,0 +1,31 @@
+# WordPress Helm Chart 커스텀 values 예제
+#
+# bitnami/wordpress 차트 사용
+# Helm의 패키징 능력을 체험: 한 줄로 6종 리소스 생성
+# (Deployment + StatefulSet + Service + PVC + Secret + ConfigMap)
+
+wordpressUsername: admin
+wordpressPassword: "my-password"
+wordpressBlogName: "My K8s Blog"
+
+service:
+  type: LoadBalancer
+
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+persistence:
+  size: 5Gi
+
+mariadb:
+  auth:
+    rootPassword: "db-root-pass"
+    password: "db-user-pass"
+  primary:
+    persistence:
+      size: 5Gi

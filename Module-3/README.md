@@ -21,7 +21,7 @@
 | 1 | [configmap](./configmap) | ConfigMap 생성 및 사용 |
 | 2 | [secret](./secret) | Secret 생성 및 사용 |
 | 3 | [kustomize](./kustomize) | Kustomize로 환경별 배포 |
-| 4 | [helm](./helm) | Helm Chart로 애플리케이션 배포 |
+| 4 | [helm](./helm) | Helm Chart로 WordPress 배포 |
 
 > **실습 흐름**: configmap → secret → kustomize → helm 순서로 진행하세요.
 > Kustomize와 Helm은 배포 도구로서 연속된 개념입니다.

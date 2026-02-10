@@ -4,46 +4,22 @@
 쿠버네티스 패키지 매니저 Helm을 사용한 애플리케이션 배포 실습입니다.
 
 > **참고**: Helm은 클러스터에 사전 설치되어 있습니다.
-> edu 저장소도 이미 추가되어 있어 바로 사용 가능합니다.
 
-## ⚠️ Jenkins 설치 시 주의사항
+## 왜 WordPress로 실습하나요?
 
-### 문제 상황
-edu/jenkins 차트를 `helm install jenkins edu/jenkins`로 직접 설치하면 플러그인 버전 충돌 발생:
+Helm의 진정한 가치는 **복잡한 애플리케이션을 한 줄로 배포**하는 것입니다.
+nginx replicas=3 같은 간단한 배포는 YAML 한 장이면 충분하지만,
+WordPress처럼 여러 컴포넌트가 필요한 앱은 Helm의 패키징 능력이 빛납니다.
+
 ```
-Plugin credentials requires a greater version of Jenkins (2.479.1) than 2.440.3
-Plugin kubernetes depends on configuration-as-code:1850, but there is an older version...
+helm install 한 줄로 생성되는 리소스:
+├── Deployment     (WordPress 앱)
+├── StatefulSet    (MariaDB 데이터베이스)
+├── Service        (외부 접속용 LoadBalancer)
+├── PVC x2         (WordPress + MariaDB 스토리지)
+├── Secret         (비밀번호 자동 관리)
+└── ConfigMap      (설정 관리)
 ```
-
-### 문제 원인
-- edu/jenkins 차트의 기본 Jenkins 버전: **2.440.3-jdk17**
-- 공식 Jenkins 업데이트 센터의 플러그인들이 더 높은 Jenkins 버전 요구
-- Jenkins 버전을 임의로 올리면 또 다른 플러그인 의존성 충돌 발생
-
-### 해결 방법
-**Module-4/jenkins-cicd/jenkins-install/install-jenkins.sh 사용** (권장)
-
-이 스크립트는 `JENKINS_UC` 환경변수로 k8s-edu의 호환 플러그인 업데이트 센터를 지정합니다:
-```bash
---set controller.initContainerEnv[0].name=JENKINS_UC
---set controller.initContainerEnv[0].value=https://raw.githubusercontent.com/k8s-edu/.../update-center.json
-```
-
-```bash
-# Jenkins 설치
-cd ~/SSF/Module-4/jenkins-cicd/jenkins-install
-bash install-jenkins.sh
-
-# 접속 정보
-kubectl get svc -n ci-cd
-# URL: http://<EXTERNAL-IP>
-# 계정: admin / admin
-```
-
-### ❌ 하지 말 것
-- Jenkins 버전을 임의로 변경하지 마세요 (예: 2.492.1-lts-jdk17)
-- values 파일만으로 edu/jenkins 설치하지 마세요
-- 공식 jenkins/jenkins 차트와 혼용하지 마세요
 
 ## Kustomize vs Helm
 
@@ -57,86 +33,92 @@ kubectl get svc -n ci-cd
 ## 실습 파일
 | 파일 | 설명 |
 |------|------|
-| `values-jenkins.yaml` | Jenkins 커스텀 설정 예제 |
+| `values-wordpress.yaml` | WordPress 커스텀 설정 예제 |
 
 ## 실습 순서
 
-### 1. Helm 및 저장소 확인
+### 1. 저장소 추가 및 Chart 검색
 
 ```bash
-# Helm 버전 확인
-helm version
+# bitnami 저장소 추가
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
 
-# edu 저장소 확인
-helm repo list
-
-# 사용 가능한 Chart 검색
-helm search repo edu
+# WordPress Chart 검색
+helm search repo wordpress
 ```
 
 ### 2. Chart 정보 확인
 
 ```bash
-# Jenkins Chart 정보 확인
-helm show chart edu/jenkins
+# WordPress Chart 정보 확인
+helm show chart bitnami/wordpress
 
-# 기본 values 확인
-helm show values edu/jenkins | head -50
+# 기본 values 확인 (설정 가능한 항목)
+helm show values bitnami/wordpress | head -50
 ```
 
-### 3. Jenkins 설치 (기본 설정)
+### 3. WordPress 설치 (커스텀 values)
 
 ```bash
-# Jenkins 설치
-helm install jenkins edu/jenkins
+# 커스텀 values로 설치
+helm install my-wp bitnami/wordpress -f values-wordpress.yaml
 
 # 설치 상태 확인
 helm list
 kubectl get pods -w
 ```
 
-### 4. 커스텀 values로 설치
+### 4. 생성된 리소스 확인
 
 ```bash
-# 기존 릴리스 삭제
-helm uninstall jenkins
+# Helm 한 줄이 생성한 6종 리소스 확인
+kubectl get deploy,sts,svc,pvc,secret
 
-# 커스텀 values로 재설치
-helm install jenkins edu/jenkins -f values-jenkins.yaml
-
-# 확인
-kubectl get svc jenkins
-kubectl get pvc
+# 결과 예시:
+# DEPLOYMENT: my-wp-wordpress          (WordPress 앱)
+# STATEFULSET: my-wp-mariadb           (MariaDB DB)
+# SERVICE: my-wp-wordpress (LB)        (외부 접속용)
+# PVC: my-wp-wordpress, data-my-wp-mariadb-0
+# SECRET: my-wp-wordpress              (비밀번호 자동 관리)
 ```
 
-### 5. 릴리스 관리
+### 5. WordPress 접속 테스트
+
+```bash
+# EXTERNAL-IP 확인
+kubectl get svc my-wp-wordpress
+
+# 브라우저: http://<EXTERNAL-IP>
+# 관리자: http://<EXTERNAL-IP>/wp-admin
+# 계정: admin / my-password
+```
+
+### 6. 릴리스 관리
 
 ```bash
 # 릴리스 히스토리
-helm history jenkins
+helm history my-wp
 
-# values 변경 후 업그레이드
-helm upgrade jenkins edu/jenkins -f values-jenkins.yaml
+# 릴리스 목록
+helm list
+
+# 업그레이드 (replicas 변경)
+helm upgrade my-wp bitnami/wordpress -f values-wordpress.yaml --set replicaCount=2
 
 # 롤백
-helm rollback jenkins 1
+helm rollback my-wp 1
 ```
 
-### 6. 릴리스 삭제
+### 7. 릴리스 삭제
 
 ```bash
-helm uninstall jenkins
+# Helm 릴리스 삭제
+helm uninstall my-wp
+
+# PVC 정리 (데이터까지 삭제)
+kubectl delete pvc --selector app.kubernetes.io/instance=my-wp
 ```
-
-## edu 저장소 주요 Chart
-
-| Chart | 설명 |
-|-------|------|
-| `edu/jenkins` | CI/CD 서버 |
-| `edu/metallb` | LoadBalancer 구현 |
-| `edu/nfs-subdir-external-provisioner` | NFS 동적 프로비저닝 |
-| `edu/grafana` | 모니터링 대시보드 |
-| `edu/prometheus` | 메트릭 수집 |
 
 ## Helm 주요 명령어
 
