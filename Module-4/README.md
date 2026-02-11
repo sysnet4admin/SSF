@@ -138,8 +138,9 @@ kubectl get svc jenkins -n ci-cd
 ```bash
 cd Module-4/common-gitops
 
-# 1. ArgoCD 설치
-./1-install-argocd.sh
+# 1. ArgoCD 설치 (_reference 버전 사용 - gcloud 의존성 없음)
+#    주의: ./1-install-argocd.sh는 gcloud 의존성이 있어 바닐라 환경에서 실패합니다
+bash _reference/1-install-argocd/install-argocd.sh
 
 # 2. hj-dashboard 이미지 빌드
 cd hj-dashboard/app
