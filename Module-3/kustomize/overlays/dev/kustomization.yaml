@@ -5,6 +5,7 @@ namespace: dev
 namePrefix: dev-
 
 resources:
+- namespace.yaml
 - ../../base
 
 replicas:
