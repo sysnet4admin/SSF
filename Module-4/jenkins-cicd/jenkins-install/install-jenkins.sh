@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Jenkins 설치 스크립트 (GKE/바닐라 K8s 자동 감지)
+# Jenkins install script (auto-detects GKE / vanilla K8s)
 #
-# 사전 요구사항:
-# - Helm 설치 (Module-3에서 완료)
-# - edu 저장소 추가: helm repo add edu https://k8s-edu.github.io/Bkv2_main/helm-charts/
+# Prerequisites:
+# - Helm installed (done in Module-3)
+# - edu repo added: helm repo add edu https://k8s-edu.github.io/Bkv2_main/helm-charts/
 #
-# 참고: Jenkins 2.440.3-jdk17 버전 사용 (edu/jenkins chart - 호환 플러그인 관리)
+# Note: Uses Jenkins 2.440.3-jdk17 (edu/jenkins chart - managed plugin compatibility)
 
 set -e
 
-# edu Helm 저장소 확인 (Module-3에서 추가됨)
+# Ensure edu Helm repo exists (added in Module-3)
 if ! helm repo list | grep -q "^edu"; then
-    echo "edu Helm 저장소 추가 중..."
+    echo "Adding edu Helm repository..."
     helm repo add edu https://k8s-edu.github.io/Bkv2_main/helm-charts/
     helm repo update
 fi
@@ -23,16 +23,16 @@ JV_OPT1="-Duser.timezone=Asia/Seoul"
 JV_OPT2="-Dcasc.jenkins.config=$JK_CFG/jcasc/jenkins-config.yaml"
 JV_OPT3="-Dhudson.model.DownloadService.noSignatureCheck=true"
 
-# 환경 자동 감지: Control Plane 노드 존재 여부
-# - 바닐라 K8s: CP_NODE에 노드명 설정 → nodeSelector/toleration 적용
-# - GKE: CP_NODE 빈 값 → nodeSelector/toleration 생략
+# Auto-detect environment by checking for Control Plane node
+# - Vanilla K8s: CP_NODE set → apply nodeSelector/toleration
+# - GKE: CP_NODE empty → skip nodeSelector/toleration
 CP_NODE=$(kubectl get nodes -l node-role.kubernetes.io/control-plane \
   -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
 
 if [ -n "$CP_NODE" ]; then
-  echo "환경 감지: 바닐라 K8s (Control Plane: $CP_NODE)"
+  echo "Detected: Vanilla K8s (Control Plane: $CP_NODE)"
 else
-  echo "환경 감지: GKE (Control Plane 노드 없음)"
+  echo "Detected: GKE (no Control Plane node)"
 fi
 
 helm upgrade --install jenkins edu/jenkins \
@@ -52,18 +52,18 @@ helm upgrade --install jenkins edu/jenkins \
   --set controller.servicePort=80 \
   --set controller.jenkinsOpts="$JK_OPT1 $JK_OPT2" \
   --set controller.javaOpts="$JV_OPT1 $JV_OPT2 $JV_OPT3"
-  # storageClass 생략 시 기본 StorageClass 사용 (GKE/바닐라 K8s 호환)
+  # Uses default StorageClass when omitted (compatible with GKE/vanilla K8s)
 
-# Jenkins SA에 클러스터 관리 권한 부여 (freestyle 빌드에서 kubectl 사용)
+# Grant cluster-admin to Jenkins SA (for kubectl in freestyle builds)
 kubectl create clusterrolebinding jenkins-admin \
   --clusterrole=cluster-admin \
   --serviceaccount=ci-cd:jenkins \
   --dry-run=client -o yaml | kubectl apply -f -
 
 echo ""
-echo "Jenkins 설치 완료!"
+echo "Jenkins installed successfully!"
 echo ""
-echo "접속 정보 확인:"
+echo "Check access info:"
 echo "  kubectl get svc -n ci-cd"
 echo ""
-echo "초기 비밀번호: admin"
+echo "Default password: admin"
