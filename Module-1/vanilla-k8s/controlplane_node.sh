@@ -53,6 +53,7 @@ chown -R vagrant:vagrant /home/vagrant/.claude
 
 # Clone SSF repository to vagrant home
 git clone https://github.com/sysnet4admin/SSF.git /home/vagrant/SSF
+find /home/vagrant/SSF -regex ".*\.\(sh\)" -exec chmod 700 {} \;
 chown -R vagrant:vagrant /home/vagrant/SSF
 echo "SSF repository cloned to /home/vagrant/SSF"
 
