@@ -68,17 +68,17 @@ fi
 
 echo ""
 echo -e "${GREEN}[5/5] Restoring original kustomization.yaml...${NC}"
-if [ "$PLATFORM" = "vanilla" ]; then
-    KUSTOMIZE_FILE="${SCRIPT_DIR}/hj-dashboard/k8s/overlays/vanilla/kustomization.yaml"
-else
+if [ "$PLATFORM" = "gcp" ]; then
     KUSTOMIZE_FILE="${SCRIPT_DIR}/hj-dashboard/k8s/overlays/gcp/kustomization.yaml"
-fi
-if [ -f "${KUSTOMIZE_FILE}.original" ]; then
-    cp "${KUSTOMIZE_FILE}.original" "${KUSTOMIZE_FILE}"
-    rm -f "${KUSTOMIZE_FILE}.original"
-    echo "Restored: ${KUSTOMIZE_FILE}"
+    if [ -f "${KUSTOMIZE_FILE}.original" ]; then
+        cp "${KUSTOMIZE_FILE}.original" "${KUSTOMIZE_FILE}"
+        rm -f "${KUSTOMIZE_FILE}.original"
+        echo "Restored: ${KUSTOMIZE_FILE}"
+    else
+        echo "No backup found (OK)"
+    fi
 else
-    echo "No backup found (OK)"
+    echo "Vanilla: kustomization.yaml is already committed with Harbor config (OK)"
 fi
 
 echo ""

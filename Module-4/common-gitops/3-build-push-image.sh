@@ -42,21 +42,10 @@ if [ "$PLATFORM" = "vanilla" ]; then
     echo -e "${GREEN}Image built and pushed successfully${NC}"
     echo ""
 
-    # Update vanilla kustomization.yaml
-    echo -e "${GREEN}Updating kustomization.yaml...${NC}"
+    # Update tag in kustomization.yaml
+    echo -e "${GREEN}Updating kustomization.yaml tag...${NC}"
     KUSTOMIZE_FILE="${SCRIPT_DIR}/hj-dashboard/k8s/overlays/vanilla/kustomization.yaml"
-
-    # Backup original if not exists
-    if [ ! -f "${KUSTOMIZE_FILE}.original" ]; then
-        cp "${KUSTOMIZE_FILE}" "${KUSTOMIZE_FILE}.original"
-    fi
-
-    # Update image reference for Harbor and tag
-    # name = match key (must match base), newName = replacement registry
     sed -i "s/newTag: .*/newTag: ${TAG}/g" "${KUSTOMIZE_FILE}"
-    if ! grep -q "newName:" "${KUSTOMIZE_FILE}"; then
-        sed -i "/name: docker.io\/library\/hj-dashboard/a\\  newName: ${HARBOR_REGISTRY}/library/${IMAGE_NAME}" "${KUSTOMIZE_FILE}"
-    fi
 
     echo "Updated: ${KUSTOMIZE_FILE}"
     cat "${KUSTOMIZE_FILE}"
