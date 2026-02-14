@@ -17,8 +17,5 @@ spec:
     namespace: default
 
   syncPolicy:
-    automated:
-      prune: true      # Git에서 삭제된 리소스 자동 삭제
-      selfHeal: true   # 클러스터 변경 시 자동 복구
     syncOptions:
     - CreateNamespace=true
