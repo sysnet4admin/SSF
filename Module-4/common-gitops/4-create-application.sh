@@ -41,11 +41,8 @@ ARGOCD_IP=$(kubectl get svc argocd-server -n argocd -o jsonpath='{.status.loadBa
 if [ -n "$ARGOCD_IP" ]; then
     echo -e "  ArgoCD UI: ${GREEN}http://${ARGOCD_IP}${NC}"
 fi
-ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" 2>/dev/null | base64 -d)
-if [ -n "$ARGOCD_PASSWORD" ]; then
-    echo "  Username: admin"
-    echo "  Password: $ARGOCD_PASSWORD"
-fi
+echo "  Username: admin"
+echo "  Password: admin"
 
 echo ""
 echo -e "${GREEN}Application created (OutOfSync - waiting for manual sync)${NC}"

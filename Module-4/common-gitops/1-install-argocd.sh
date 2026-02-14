@@ -32,29 +32,25 @@ echo -e "${GREEN}[2/4] Adding ArgoCD Helm repository...${NC}"
 helm repo add argo https://argoproj.github.io/argo-helm 2>/dev/null || true
 helm repo update
 
-# Install ArgoCD
+# Install ArgoCD with admin password set to "admin"
 echo -e "${GREEN}[3/4] Installing ArgoCD via Helm...${NC}"
+ADMIN_HASH='$2a$10$cvUYvX493OaQu5kBbAqxTeFdzbxYSOo3.Mbz2vuP.qhPpuceX6fxS'
 helm upgrade --install argocd argo/argo-cd \
   --namespace argocd \
   --set server.service.type=LoadBalancer \
   --set configs.params."server\.insecure"=true \
+  --set configs.secret.argocdServerAdminPassword="${ADMIN_HASH}" \
   --wait
 
 # Show status
 echo -e "${GREEN}[4/4] Checking ArgoCD status...${NC}"
 kubectl get pods -n argocd
 
-# Get admin password
+# Show credentials
 echo ""
 echo -e "${GREEN}ArgoCD Credentials:${NC}"
-ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" 2>/dev/null | base64 -d)
-if [ -n "$ARGOCD_PASSWORD" ]; then
-    echo "  Username: admin"
-    echo "  Password: $ARGOCD_PASSWORD"
-else
-    echo "  Password not ready yet. Run:"
-    echo "  kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath=\"{.data.password}\" | base64 -d"
-fi
+echo "  Username: admin"
+echo "  Password: admin"
 
 echo ""
 echo -e "${GREEN}ArgoCD installed successfully${NC}"
