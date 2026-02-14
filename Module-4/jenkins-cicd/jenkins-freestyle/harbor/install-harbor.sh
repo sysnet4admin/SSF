@@ -14,6 +14,11 @@
 
 set -e
 
+# root 권한이 아니면 sudo로 재실행
+if [ "$(id -u)" -ne 0 ]; then
+    exec sudo bash "$0" "$@"
+fi
+
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 HARBOR_FILE_DIR=/opt/harbor
 HARBOR_DATA_DIR=/data/harbor
