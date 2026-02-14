@@ -54,6 +54,12 @@ helm upgrade --install jenkins edu/jenkins \
   --set controller.javaOpts="$JV_OPT1 $JV_OPT2 $JV_OPT3"
   # storageClass 생략 시 기본 StorageClass 사용 (GKE/바닐라 K8s 호환)
 
+# Jenkins SA에 클러스터 관리 권한 부여 (freestyle 빌드에서 kubectl 사용)
+kubectl create clusterrolebinding jenkins-admin \
+  --clusterrole=cluster-admin \
+  --serviceaccount=ci-cd:jenkins \
+  --dry-run=client -o yaml | kubectl apply -f -
+
 echo ""
 echo "Jenkins 설치 완료!"
 echo ""
