@@ -8,9 +8,8 @@ source "${SCRIPT_DIR}/common-functions.sh"
 echo -e "${GREEN}=== Step 1: Install ArgoCD ===${NC}"
 echo ""
 
-# Get GCP info
-get_gcp_info
-display_config
+# Detect platform
+detect_platform
 
 # Check if ArgoCD is already installed
 if kubectl get namespace argocd &>/dev/null; then

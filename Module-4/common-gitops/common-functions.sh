@@ -7,6 +7,22 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+# Detect platform: vanilla K8s or GKE
+detect_platform() {
+    CP_NODE=$(kubectl get nodes -l node-role.kubernetes.io/control-plane -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+
+    if [ -n "$CP_NODE" ]; then
+        PLATFORM="vanilla"
+        HARBOR_REGISTRY="192.168.1.10:8443"
+        echo -e "${YELLOW}Platform: Vanilla K8s (CP: ${CP_NODE})${NC}"
+    else
+        PLATFORM="gcp"
+        get_gcp_info
+        display_config
+    fi
+    echo ""
+}
+
 # Get GCP project and cluster info
 get_gcp_info() {
     PROJECT_ID=$(gcloud config get-value project 2>/dev/null)

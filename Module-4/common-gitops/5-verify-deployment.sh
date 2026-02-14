@@ -8,9 +8,8 @@ source "${SCRIPT_DIR}/common-functions.sh"
 echo -e "${GREEN}=== Step 5: Verify Deployment ===${NC}"
 echo ""
 
-# Get GCP info
-get_gcp_info
-display_config
+# Detect platform
+detect_platform
 
 # Wait for pods to be ready
 echo -e "${GREEN}Waiting for hj-dashboard pods...${NC}"

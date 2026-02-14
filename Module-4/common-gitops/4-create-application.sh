@@ -8,16 +8,21 @@ source "${SCRIPT_DIR}/common-functions.sh"
 echo -e "${GREEN}=== Step 4: Deploy hj-dashboard with Kustomize ===${NC}"
 echo ""
 
-# Get GCP info
-get_gcp_info
-display_config
+# Detect platform
+detect_platform
 
-# Deploy using kustomize (uses local kustomization.yaml with actual PROJECT_ID)
+if [ "$PLATFORM" = "vanilla" ]; then
+    OVERLAY="vanilla"
+else
+    OVERLAY="gcp"
+fi
+
+# Deploy using kustomize
 echo -e "${GREEN}Deploying hj-dashboard using Kustomize...${NC}"
-echo "Using overlay: hj-dashboard/k8s/overlays/gcp"
+echo "Using overlay: hj-dashboard/k8s/overlays/${OVERLAY}"
 echo ""
 
-kubectl apply -k "${SCRIPT_DIR}/hj-dashboard/k8s/overlays/gcp"
+kubectl apply -k "${SCRIPT_DIR}/hj-dashboard/k8s/overlays/${OVERLAY}"
 
 echo ""
 echo -e "${GREEN}Waiting for deployment to be ready...${NC}"
