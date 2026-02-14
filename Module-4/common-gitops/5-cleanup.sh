@@ -5,7 +5,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/common-functions.sh"
 
-echo -e "${GREEN}=== Step 6: Cleanup GitOps Resources ===${NC}"
+echo -e "${GREEN}=== Step 5: Cleanup GitOps Resources ===${NC}"
 echo ""
 
 # Detect platform
