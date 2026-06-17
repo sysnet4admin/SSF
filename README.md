@@ -1,30 +1,52 @@
-# SSF 쿠버네티스 교육 과정
+# SSF 15기: AI로 배우는 쿠버네티스
 
-## 교육 개요
+쿠버네티스를 처음 접하는 분을 위한 7회차 실습 과정입니다. 하나의 앱을 회차마다 한 겹씩 쌓아 올리며, AI 튜터(Claude Code)와 함께 배포의 전체 흐름을 익힙니다.
 
-| Module | 주요내용 | 시간 | 학습방법 | 비고 |
-|--------|----------|------|----------|------|
-| [Module 1. 쿠버네티스 기초](./Module-1) | • 시대흐름에 따른 인프라의 변화<br>• AI 시대에 쿠버네티스를 알아야 하는 이유<br>• 쿠버네티스는 왜 클러스터일까?<br>• 쿠버네티스 기본 구성 요소<br>• 바닐라 쿠버네티스와 관리형 쿠버네티스의 차이<br>• [실습] 바닐라 쿠버네티스, GKE 배포 및 구성 확인 | 4H | 강의/실습 | 바닐라 쿠버네티스 환경 설정<br>GKE 사용 예정 (무료, $300 제공, 90일)<br>AI는 클로드 코드 (유료, $22, 1달)<br>로컬은 MacBook에서 진행 (수강생은 리눅스 터미널 환경 구성) |
-| [Module 2. 쿠버네티스 리소스](./Module-2) | • 쿠버네티스 기본 단위인 파드(Pod)<br>• 다수의 파드를 관리하는 디플로이먼트(Deployment)<br>• 외부에서 파드를 접근할 수 있게 해주는 서비스(Service)<br>• 데이터를 영구적으로 보관하기 위한 볼륨(Volume)<br>• [실습] 각 리소스 배포 및 자동 관리 확인 (by 소스, by AI) | 4H | 강의/실습 | 소스는 Github 저장소에서 제공 예정 |
-| [Module 3. 애플리케이션의 효과적인 배포](./Module-3) | • 컨피그맵(ConfigMap)과 시크릿(Secret)의 목적<br>• Kustomize와 Helm이 필요한 이유<br>• [실습] 쿠버네티스 환경에서 배포 생성 (by 소스, by AI) | 2H | 강의/실습 | 소스는 Github 저장소에서 제공 예정 |
-| [Module 4. 지속적인 배포와 통합(CI/CD)](./Module-4) | • CI 개론<br>• CD 개론<br>• CI/CD에 왜 GitOps는 따라 오는가?<br>• [실습] GKE: Cloud Build + Cloud Deploy<br>• [실습] Vanilla: Jenkins CI/CD | 2H | 강의/실습 | GKE: GCP 네이티브 CI/CD 권장<br>Vanilla: Jenkins 실습 |
-| [Module 5. DevOps의 중심인 모니터링](./Module-5) | • Dev 그리고 Ops 개론<br>• Ops를 위해 필요한 모니터링 개론<br>• 프로메테우스와 그라파나 설명<br>• [실습] 프로메테우스와 그라파나 구성 및 모니터링 (by 소스, by AI) | 2H | 강의/실습 | 정해진 시간 내에서는 직접 시연만 가능할 것으로 보임 |
+## 학습 방식
 
-## 총 교육 시간
-**14시간** (4H + 4H + 2H + 2H + 2H)
+- 앱은 하나입니다. 회차마다 같은 앱과 같은 `k8s/`를 한 겹씩 드러냅니다.
+- 무거운 작업은 AI에게 맡기고, 학생은 적용과 관찰과 확인에 집중합니다.
+- 가드레일 루프: 탐색 → 비교 → 실행 → 확인. 자세한 동작은 `CLAUDE.md`에 있습니다.
 
-## 플랫폼별 실습 범위
+## 7회차 사다리
 
-| Module | GKE | Vanilla K8s |
-|--------|:---:|:-----------:|
-| Module 1 | ✅ | ✅ |
-| Module 2 | ✅ | ✅ |
-| Module 3 | ✅ | ✅ |
-| Module 4 | ✅ Cloud Build | ✅ Jenkins |
-| Module 5 | ✅ | ✅ |
+| 회차 | 주제 | 다루는 부분 | 가이드 |
+|------|------|-------------|--------|
+| 1 | 실행 | 부트스트랩, 클러스터 생성, frontend 배포 | `sessions/01-run.md` |
+| 2 | 이해 | Pod, 선언적 모델 | `sessions/02-pod.md` |
+| 3 | 관리 | ReplicaSet, Deployment(롤링/롤백) | `sessions/03-deployment.md` |
+| 4 | 연결 | Service(LoadBalancer/ClusterIP), backend 합류 | `sessions/04-service.md` |
+| 5 | 통합 | ConfigMap(Git), Secret(클러스터에 따로) | `sessions/05-config-secret.md` |
+| 6 | CI | fork, push, Actions 빌드, 내 이미지 전환 | `sessions/06-ci.md` |
+| 7 | CD | ArgoCD 설치, App 등록, replicas push, reconcile | `sessions/07-cd.md` |
 
-## 환경 설정
-- **바닐라 쿠버네티스**: Module 1에서 환경 설정
-- **클라우드**: GKE (Google Kubernetes Engine) - 무료 크레딧 $300 제공 (90일)
-- **AI 도구**: Claude Code - $22/월
-- **로컬 환경**: MacBook에서 진행하나 수강생은 리눅스 터미널 환경을 구성하도록 가이드
+## 저장소 구조
+
+```
+SSF/
+├── app/                  # 샘플 앱
+│   ├── frontend/         # React(Vite) + Dockerfile
+│   └── backend/          # Node/Express + Dockerfile
+├── k8s/                  # 쿠버네티스 매니페스트 (GitOps 소스)
+├── .github/workflows/    # CI (GitHub Actions, GHCR public)
+├── argocd/               # CD (ArgoCD 설치, Application)
+├── gke/                  # 클러스터 생성/연결/삭제
+├── bootstrap/            # Windows 부트스트랩, Cloud Shell 폴백
+├── sessions/             # 회차별 가이드
+├── CLAUDE.md             # AI 튜터 가드레일
+├── decision-guides/      # 탐색/비교 자료
+├── prompt-guardrails/    # 실행 절차
+├── result-templates/     # 확인 절차
+└── _reference/helm/      # 백포켓 참고용
+```
+
+## 시작하기
+
+1. 저장소(`sysnet4admin/SSF`)를 본인 GitHub 계정으로 fork 합니다.
+2. `bootstrap/windows-bootstrap.ps1`로 도구를 설치하고 `gcloud auth login`을 마칩니다. 설치가 어려우면 `bootstrap/cloud-shell-fallback.md`를 따릅니다.
+3. `sessions/01-run.md`부터 순서대로 진행합니다.
+
+## 이미지 전략
+
+- 1~5회차: 강사 사전 빌드 이미지(`ghcr.io/sysnet4admin/ssf15-frontend:v1`, `ssf15-backend:v1`)를 사용합니다.
+- 6회차: 본인 fork에서 빌드한 이미지로 전환합니다.

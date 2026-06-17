@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  # ClusterIP: 클러스터 내부에서만 접근합니다(외부 비공개).
+  # frontend의 nginx가 이 이름(backend-service)으로 백엔드에 연결합니다.
+  type: ClusterIP
+  selector:
+    app: backend
+  ports:
+    - port: 8080
+      targetPort: 8080

@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          # 1~5회차: 강사 사전 빌드 이미지. 6회차에 본인 fork 이미지로 교체합니다.
+          image: ghcr.io/sysnet4admin/ssf15-frontend:v1
+          ports:
+            - containerPort: 80

@@ -1,0 +1,5 @@
+#!/bin/sh
+# 컨테이너 시작 시 클러스터 DNS 주소를 /etc/resolv.conf에서 읽어 NAMESERVER로 내보냅니다.
+# nginx 공식 이미지의 템플릿 처리(envsubst)가 이 값을 default.conf의 resolver에 채웁니다.
+NAMESERVER="$(awk '/^nameserver/ {print $2; exit}' /etc/resolv.conf)"
+export NAMESERVER

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  # 이 replicas 값이 7회차 GitOps 변경 지점입니다.
+  # 2 이상으로 두어 새로고침 시 응답 Pod(podName)가 바뀌는 것을 보이게 합니다.
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          # 1~5회차: 강사 사전 빌드 이미지. 6회차에 본인 fork 이미지로 교체합니다.
+          image: ghcr.io/sysnet4admin/ssf15-backend:v1
+          ports:
+            - containerPort: 8080
+          # 5회차에서 다룹니다.
+          # ConfigMap(MESSAGE)은 Git의 configmap.yaml에서 주입합니다.
+          # Secret(API_KEY)은 Git에 두지 않고 5회차에 클러스터에 직접 생성해 참조만 합니다.
+          # optional: true 이므로 ConfigMap/Secret이 아직 없어도 Pod는 정상 기동합니다.
+          envFrom:
+            - configMapRef:
+                name: app-config
+                optional: true
+          env:
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: api-key
+                  optional: true

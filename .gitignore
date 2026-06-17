@@ -341,3 +341,6 @@ coverage/
 
 # Claude Code session context (temporary)
 .claude-session-context.md
+
+# 15기 빌드 지시서 (로컬 참조용, 커밋 금지)
+SSF_15기_빌드지시서.md

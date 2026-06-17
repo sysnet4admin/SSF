@@ -1,9 +1,0 @@
-replicaCount: 3
-
-image:
-  repository: nginx
-  tag: "1.25"
-
-service:
-  type: LoadBalancer
-  port: 80

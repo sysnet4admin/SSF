@@ -1,0 +1,12 @@
+{
+  "name": "ssf15-backend",
+  "version": "1.0.0",
+  "description": "SSF 15기 실습용 백엔드 (podName 노출)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

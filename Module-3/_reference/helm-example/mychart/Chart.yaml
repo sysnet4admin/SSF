@@ -1,6 +1,0 @@
-apiVersion: v2
-name: mychart
-description: A simple Helm chart for Kubernetes practice
-type: application
-version: 0.1.0
-appVersion: "1.0.0"

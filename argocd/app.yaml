@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ssf15
+  namespace: argocd
+spec:
+  project: default
+  source:
+    # 본인 fork 저장소 주소로 바꿉니다(7회차 가이드 참고).
+    # 예: https://github.com/your-id/SSF.git
+    repoURL: https://github.com/__YOUR_GITHUB_USERNAME__/SSF.git
+    targetRevision: main
+    # GitOps 소스 경로. 이 폴더의 매니페스트를 클러스터와 계속 맞춥니다.
+    path: k8s
+  destination:
+    # 같은 클러스터에 배포합니다.
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    # 자동 sync: Git을 바꾸면 클러스터가 따라옵니다.
+    automated:
+      prune: true
+      selfHeal: true

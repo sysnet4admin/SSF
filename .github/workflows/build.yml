@@ -1,0 +1,43 @@
+name: build
+
+# push 하면 frontend, backend 이미지를 빌드해 GHCR(public)로 올립니다.
+# 외부 시크릿 없이 fork 직후 바로 동작합니다(GITHUB_TOKEN만 사용).
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: [frontend, backend]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # GHCR 이미지 경로는 소문자만 허용하므로 owner를 소문자로 변환합니다.
+      - name: Resolve image owner (lowercase)
+        id: owner
+        run: echo "name=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push ${{ matrix.component }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./app/${{ matrix.component }}
+          push: true
+          tags: |
+            ghcr.io/${{ steps.owner.outputs.name }}/ssf15-${{ matrix.component }}:v1
+            ghcr.io/${{ steps.owner.outputs.name }}/ssf15-${{ matrix.component }}:${{ github.sha }}
