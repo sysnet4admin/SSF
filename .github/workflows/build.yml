@@ -6,8 +6,6 @@ on:
   push:
     branches:
       - main
-      # 리허설용 임시 트리거. main 병합 전에 제거합니다.
-      - cohort/15
 
 permissions:
   contents: read
