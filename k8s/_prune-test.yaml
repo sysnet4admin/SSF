@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: prune-test
-data:
-  note: "ArgoCD prune 검증용 임시 리소스"
