@@ -4,7 +4,7 @@
 
 Service로 앱을 연결한다. backend를 합류시키고, frontend가 backend를 부르는 길을 만든다. LoadBalancer와 ClusterIP의 차이를 이해한다.
 
-## 사다리에서 지금 위치
+## 지금 단계
 
 지금까지 frontend만 있었다. 이번에 backend가 합류하고, 둘이 Service로 연결된다.
 
