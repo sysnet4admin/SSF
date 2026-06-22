@@ -12,9 +12,11 @@ server {
     # 주소를 변수로 두고 resolver로 요청 시점에 해석하므로,
     # backend가 아직 없어도 nginx는 정상 기동하고 해당 요청만 실패합니다.
     # ${NAMESERVER}는 컨테이너 시작 시 /etc/resolv.conf에서 채워집니다.
+    # nginx resolver는 resolv.conf의 search 도메인을 적용하지 않으므로,
+    # 짧은 이름이 아니라 FQDN(backend-service.default.svc.cluster.local)을 사용합니다.
     location /api {
         resolver ${NAMESERVER} valid=10s;
-        set $backend_upstream http://backend-service:8080;
+        set $backend_upstream http://backend-service.default.svc.cluster.local:8080;
         proxy_pass $backend_upstream;
     }
 }
