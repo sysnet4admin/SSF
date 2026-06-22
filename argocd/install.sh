@@ -7,7 +7,9 @@ echo "[1/4] argocd 네임스페이스 생성"
 kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
 
 echo "[2/4] ArgoCD 설치 (안정 버전 manifest)"
-kubectl apply -n argocd \
+# server-side apply를 사용합니다. ApplicationSet 등 대형 CRD가
+# kubectl apply의 annotation 크기 제한(262144 bytes)을 넘는 문제를 피합니다.
+kubectl apply --server-side -n argocd \
   -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 echo "[3/4] argocd-server를 LoadBalancer로 노출"
