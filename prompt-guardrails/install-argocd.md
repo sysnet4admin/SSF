@@ -2,9 +2,10 @@
 
 ## 실행 (설치)
 
+저장소 루트(`SSF/`)에서 실행한다.
+
 ```bash
-cd argocd
-./install.sh
+./argocd/install.sh
 ```
 
 설치가 끝나면 UI 주소와 초기 비밀번호 확인 명령이 출력된다.
