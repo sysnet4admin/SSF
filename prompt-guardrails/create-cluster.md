@@ -3,14 +3,15 @@
 ## 전제
 
 - `bootstrap/windows-bootstrap.ps1`로 도구 설치와 `gcloud auth login`을 마쳤다.
-- `gke/create-cluster.sh` 상단 변수(`PROJECT_ID`)를 본인 값으로 채웠다.
+- `gke/` 안 세 스크립트(create, connect, delete) 상단의 `PROJECT_ID`를 본인 값으로 채웠다.
 
 ## 실행
 
+저장소 루트(`SSF/`)에서 실행한다.
+
 ```bash
-cd gke
-./create-cluster.sh      # Standard + Spot, 서울 리전, e2-standard-2 노드 2대
-./connect-cluster.sh     # kubeconfig 설정
+./gke/create-cluster.sh      # Standard + Spot, 서울 리전, e2-standard-2 노드 2대
+./gke/connect-cluster.sh     # kubeconfig 설정
 ```
 
 ## 확인

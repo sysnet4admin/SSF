@@ -25,6 +25,7 @@ kubectl get pods -l app=backend
 ```
 
 - 새로고침 시 더 많은 podName이 등장한다.
+- 확인이 끝나면 2로 되돌린다: `kubectl scale deploy/backend --replicas=2`
 
 ## 4. GitOps로 바꾸면 (7회차)
 

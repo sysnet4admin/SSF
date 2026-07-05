@@ -5,7 +5,7 @@
 ## 개요
 쿠버네티스 패키지 매니저 Helm을 사용한 애플리케이션 배포 실습입니다.
 
-> **참고**: Helm은 클러스터에 사전 설치되어 있습니다.
+> **참고**: Helm은 별도 설치가 필요한 클라이언트 도구입니다. 심화 참고용이므로 정규 실습에서는 설치하지 않습니다.
 
 ## 왜 WordPress로 실습하나요?
 
@@ -136,7 +136,3 @@ kubectl delete pvc --selector app.kubernetes.io/instance=my-wp
 | `helm rollback <name> <revision>` | 롤백 |
 | `helm list` | 설치된 릴리스 목록 |
 | `helm uninstall <name>` | 릴리스 삭제 |
-
-## 참고 자료
-
-커스텀 Helm Chart 작성 예제는 [_reference/helm-example](../_reference/helm-example) 폴더를 참고하세요.

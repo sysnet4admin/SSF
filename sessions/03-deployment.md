@@ -26,10 +26,10 @@ Pod가 3개로 늘어난다. 하나를 지워도 다시 3개로 채워지는지 
 
 ### 2. 롤링 업데이트 체험
 
-이미지 태그를 바꿔 업데이트가 어떻게 일어나는지 본다(예시는 강사 안내를 따른다).
+이미지 태그를 v1에서 v2로 바꿔 업데이트가 어떻게 일어나는지 본다.
 
 ```bash
-kubectl set image deploy/frontend frontend=ghcr.io/sysnet4admin/ssf15-frontend:v1
+kubectl set image deploy/frontend frontend=ghcr.io/sysnet4admin/ssf15-frontend:v2
 kubectl rollout status deploy/frontend
 ```
 
@@ -37,9 +37,20 @@ kubectl rollout status deploy/frontend
 
 ```bash
 kubectl rollout undo deploy/frontend
+kubectl get deploy frontend -o jsonpath='{.spec.template.spec.containers[0].image}'
+```
+
+이미지가 v1로 돌아온 것을 확인한다.
+
+### 4. 원복
+
+다음 회차를 위해 개수를 1로 되돌린다.
+
+```bash
+kubectl scale deploy/frontend --replicas=1
 ```
 
 ## 확인
 
 - `kubectl get pods`로 교체가 한 번에가 아니라 조금씩 일어나는 것을 확인한다.
-- 롤백 후 이전 상태로 돌아오는지 확인한다.
+- 롤백 후 이미지가 v1로 돌아왔는지 확인한다.
