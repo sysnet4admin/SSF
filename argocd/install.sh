@@ -1,16 +1,18 @@
 #!/bin/bash
 # ArgoCD 설치 (학생이 실행하는 제공 명령)
-# 안정 버전 install manifest를 적용합니다.
+# 버전을 고정해 기수 진행 중 변동을 막습니다.
 set -e
+
+ARGOCD_VERSION="v3.4.4"
 
 echo "[1/4] argocd 네임스페이스 생성"
 kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
 
-echo "[2/4] ArgoCD 설치 (안정 버전 manifest)"
+echo "[2/4] ArgoCD 설치 ($ARGOCD_VERSION manifest)"
 # server-side apply를 사용합니다. ApplicationSet 등 대형 CRD가
 # kubectl apply의 annotation 크기 제한(262144 bytes)을 넘는 문제를 피합니다.
 kubectl apply --server-side -n argocd \
-  -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  -f "https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml"
 
 echo "[3/4] argocd-server를 LoadBalancer로 노출"
 kubectl -n argocd patch svc argocd-server \

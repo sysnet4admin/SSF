@@ -1,11 +1,16 @@
 name: build
 
-# push 하면 frontend, backend 이미지를 빌드해 GHCR(public)로 올립니다.
+# app/ 이 바뀐 push에서 frontend, backend 이미지를 빌드해 GHCR로 올립니다.
+# 처음 만들어진 패키지는 private일 수 있습니다. public 전환은 6회차 가이드를 따릅니다.
 # 외부 시크릿 없이 fork 직후 바로 동작합니다(GITHUB_TOKEN만 사용).
 on:
   push:
     branches:
       - main
+    # k8s/ 만 바꾸는 push(7회차 replicas 변경 등)에는 불필요한 재빌드를 하지 않습니다.
+    paths:
+      - "app/**"
+      - ".github/workflows/build.yml"
 
 permissions:
   contents: read

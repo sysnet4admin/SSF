@@ -22,6 +22,20 @@ spec:
           image: ghcr.io/sysnet4admin/ssf15-backend:v1
           ports:
             - containerPort: 8080
+          # /healthz로 Pod의 준비(readiness)와 생존(liveness)을 확인합니다.
+          # 준비가 확인된 Pod에만 트래픽이 가고, 응답이 없으면 재시작됩니다.
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
           # 5회차에서 다룹니다.
           # ConfigMap(MESSAGE)은 Git의 configmap.yaml에서 주입합니다.
           # Secret(API_KEY)은 Git에 두지 않고 5회차에 클러스터에 직접 생성해 참조만 합니다.

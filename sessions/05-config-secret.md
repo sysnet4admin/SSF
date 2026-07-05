@@ -23,7 +23,7 @@ kubectl apply -f k8s/configmap.yaml
 kubectl rollout restart deploy/backend
 ```
 
-`k8s/configmap.yaml`의 `MESSAGE`를 바꿔 다시 적용하면 화면 메시지가 바뀐다.
+화면 메시지가 코드 기본값에서 ConfigMap 값("... (ConfigMap 적용됨)")으로 바뀐다. `k8s/configmap.yaml`의 `MESSAGE`를 다른 값으로 바꿔 다시 적용하면 또 바뀐다.
 
 ### 2. Secret 생성 (Git에 두지 않는다)
 
@@ -39,6 +39,7 @@ kubectl rollout restart deploy/backend
 
 ```bash
 # 메시지가 ConfigMap에서 오는지
+kubectl exec deploy/backend -- printenv MESSAGE
 # 비밀값이 Git이 아니라 클러스터에서 주입되는지
 kubectl exec deploy/backend -- printenv API_KEY
 ```

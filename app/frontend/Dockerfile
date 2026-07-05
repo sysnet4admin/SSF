@@ -4,7 +4,8 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+# lockfile 그대로 설치해 빌드 재현성을 보장합니다.
+RUN npm ci
 COPY . .
 RUN npm run build
 
