@@ -45,6 +45,8 @@ AI에게 "클러스터 만들어줘"라고 요청하거나 직접 실행한다.
 ./gke/connect-cluster.sh
 ```
 
+connect-cluster.sh는 접속 정보를 kubeconfig 파일(`~/.kube/config`)에 저장한다. 이후 kubectl이 이 파일을 보고 방금 만든 클러스터로 명령을 보낸다.
+
 ### 2. 첫 kubectl 명령: 노드 확인
 
 ```bash
