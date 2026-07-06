@@ -62,7 +62,7 @@ SSF/
    ```
 
    설치가 어려우면 `bootstrap/cloud-shell-fallback.md`를 따릅니다.
-3. `claude`를 실행해 로그인한 뒤(처음 한 번) `sessions/01-run.md`부터 순서대로 진행합니다.
+3. clone 한 `SSF` 폴더에서 `claude`를 실행해 로그인한 뒤(처음 한 번) `sessions/01-run.md`부터 순서대로 진행합니다.
 
 ## 이미지 전략
 
