@@ -44,8 +44,17 @@ SSF/
 
 준비물: GitHub 계정, 결제가 활성화된 GCP 프로젝트(무료 체험 크레딧으로 가능).
 
-1. 저장소(`sysnet4admin/SSF`)를 본인 GitHub 계정으로 fork 합니다.
-2. Windows Terminal(PowerShell)에서 부트스트랩을 실행합니다. 도구 설치, gcloud 로그인, 본인 fork clone(홈 폴더의 `SSF/`), 프로젝트 ID 설정까지 한 번에 끝납니다.
+1. 저장소(`sysnet4admin/SSF`)를 본인 GitHub 계정으로 fork 합니다. Star도 눌러 두면 내 Stars 목록에서 다시 찾기 쉽습니다.
+2. 본인 fork를 clone 하고 부트스트랩을 실행합니다. 도구 설치, gcloud 로그인, 프로젝트 ID 설정까지 한 번에 끝납니다.
+
+   ```powershell
+   git clone https://github.com/본인계정/SSF.git
+   cd SSF
+   Set-ExecutionPolicy Bypass -Scope Process -Force
+   .\bootstrap\windows-bootstrap.ps1
+   ```
+
+   Git이 아직 없다면 clone 대신 한 줄로 실행합니다(설치 후 fork를 자동으로 clone 합니다).
 
    ```powershell
    Set-ExecutionPolicy Bypass -Scope Process -Force
@@ -53,7 +62,7 @@ SSF/
    ```
 
    설치가 어려우면 `bootstrap/cloud-shell-fallback.md`를 따릅니다.
-3. 저장소로 이동해(`cd ~/SSF`) `sessions/01-run.md`부터 순서대로 진행합니다.
+3. `claude`를 실행해 로그인한 뒤(처음 한 번) `sessions/01-run.md`부터 순서대로 진행합니다.
 
 ## 이미지 전략
 

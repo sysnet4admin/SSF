@@ -1,9 +1,15 @@
 # SSF 15기 Windows 부트스트랩
-# 깨끗한 Windows에서 실습 준비를 한 번에 끝냅니다.
+# 실습 도구 설치와 GCP 설정을 한 번에 끝냅니다.
 # 하는 일: 도구 설치(Git, gcloud, kubectl, Claude Code), gcloud 로그인과 프로젝트 설정,
-#          본인 fork clone(홈 폴더의 SSF/), gke 스크립트에 PROJECT_ID 주입
-# 실행 전 준비: GCP 프로젝트, GitHub에서 sysnet4admin/SSF를 본인 계정으로 fork
-# 실행 방법: Windows Terminal(PowerShell)에서 아래 두 줄로 실행합니다.
+#          gke 스크립트에 PROJECT_ID 주입 (저장소 밖에서 실행하면 fork clone까지)
+#
+# 실행 방법 A (권장): 본인 fork를 clone 한 뒤 저장소 안에서 실행합니다.
+#   git clone https://github.com/본인계정/SSF.git
+#   cd SSF
+#   Set-ExecutionPolicy Bypass -Scope Process -Force
+#   .\bootstrap\windows-bootstrap.ps1
+#
+# 실행 방법 B (Git이 아직 없을 때): 한 줄로 실행합니다. 설치 후 fork를 자동으로 clone 합니다.
 #   Set-ExecutionPolicy Bypass -Scope Process -Force
 #   irm https://raw.githubusercontent.com/sysnet4admin/SSF/main/bootstrap/windows-bootstrap.ps1 | iex
 
@@ -30,10 +36,17 @@ gcloud auth login
 $projectId = Read-Host "GCP 프로젝트 ID 입력"
 gcloud config set project $projectId
 
-Write-Host "[6/6] 실습 저장소 준비 (fork clone + PROJECT_ID 주입)"
-$ghId = Read-Host "GitHub 아이디 입력 (SSF를 fork 해 둔 계정)"
-$repoDir = Join-Path $HOME "SSF"
-git clone "https://github.com/$ghId/SSF.git" $repoDir
+Write-Host "[6/6] 실습 저장소 준비"
+# 저장소 안(bootstrap/)에서 실행했으면 그 저장소를 그대로 사용하고, 아니면 fork를 clone 합니다.
+$localRepo = if ($PSScriptRoot) { Split-Path $PSScriptRoot -Parent } else { $null }
+if ($localRepo -and (Test-Path (Join-Path $localRepo "gke"))) {
+  $repoDir = $localRepo
+  Write-Host "저장소를 찾았습니다: $repoDir (clone 생략)"
+} else {
+  $ghId = Read-Host "GitHub 아이디 입력 (SSF를 fork 해 둔 계정)"
+  $repoDir = Join-Path $HOME "SSF"
+  git clone "https://github.com/$ghId/SSF.git" $repoDir
+}
 
 # gke 스크립트의 PROJECT_ID 자리표시자를 방금 입력한 값으로 채웁니다.
 # UTF-8(BOM 없음)로 다시 써서 셸 스크립트가 깨지지 않게 합니다.
@@ -47,11 +60,6 @@ Write-Host ""
 Write-Host "=== 준비 완료 ==="
 Write-Host "실습 저장소: $repoDir"
 Write-Host "다음 순서:"
-Write-Host "  cd $repoDir"
-Write-Host "  sessions/01-run.md 가이드를 따라 진행합니다"
-Write-Host ""
-Write-Host "확인 명령:"
-Write-Host "  git --version"
-Write-Host "  gcloud --version"
-Write-Host "  kubectl version --client"
-Write-Host "  claude --version"
+Write-Host "  1. cd $repoDir"
+Write-Host "  2. claude 를 실행해 로그인합니다 (처음 한 번, 브라우저 창이 열립니다)"
+Write-Host "  3. sessions/01-run.md 가이드를 따라 진행합니다"

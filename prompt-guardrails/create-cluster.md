@@ -2,7 +2,7 @@
 
 ## 전제
 
-- `bootstrap/windows-bootstrap.ps1`을 완료했다(도구 설치, gcloud 로그인, fork clone, `gke/` 스크립트 PROJECT_ID 주입까지 자동으로 끝난다).
+- `bootstrap/windows-bootstrap.ps1`을 완료했다(도구 설치, gcloud 로그인, `gke/` 스크립트 PROJECT_ID 주입까지 자동으로 끝난다).
 
 ## 실행
 

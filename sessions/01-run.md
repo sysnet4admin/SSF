@@ -12,15 +12,18 @@ frontend만 올린다. backend, 설정, 자동화는 뒤 회차에서 한 단계
 
 1. GCP 프로젝트가 있고 결제가 활성화되어 있는지 확인한다. 프로젝트 ID를 메모해 둔다.
 2. 저장소(`sysnet4admin/SSF`)를 본인 계정으로 fork 한다.
-3. Windows Terminal(PowerShell)에서 부트스트랩을 실행한다. 도구 설치, gcloud 로그인, 본인 fork clone(홈 폴더의 `SSF/`), `gke/` 스크립트의 PROJECT_ID 주입까지 한 번에 끝난다. 중간에 프로젝트 ID와 GitHub 아이디를 물어본다.
+3. 본인 fork를 clone 하고, 저장소 안에서 부트스트랩을 실행한다. 도구 설치, gcloud 로그인, `gke/` 스크립트의 PROJECT_ID 주입까지 한 번에 끝난다.
 
    ```powershell
+   git clone https://github.com/본인계정/SSF.git
+   cd SSF
    Set-ExecutionPolicy Bypass -Scope Process -Force
-   irm https://raw.githubusercontent.com/sysnet4admin/SSF/main/bootstrap/windows-bootstrap.ps1 | iex
+   .\bootstrap\windows-bootstrap.ps1
    ```
 
+   - Git이 아직 없다면 clone 대신 한 줄로 실행한다(설치 후 fork를 자동으로 clone 한다): `irm https://raw.githubusercontent.com/sysnet4admin/SSF/main/bootstrap/windows-bootstrap.ps1 | iex`
    - 설치가 어려우면 `bootstrap/cloud-shell-fallback.md`로 동일하게 진행한다.
-4. 완료되면 저장소로 이동한다: `cd ~/SSF`
+4. `claude`를 실행해 로그인한다(처음 한 번, 브라우저 창이 열린다). 로그인 후 "안녕하세요"라고 입력해 응답이 오면 준비 완료다.
 
 ## 진행
 
