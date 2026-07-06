@@ -31,7 +31,10 @@ Pod가 3개로 늘어난다. 하나를 지워도 다시 3개로 채워지는지 
 ```bash
 kubectl set image deploy/frontend frontend=ghcr.io/sysnet4admin/ssf15-frontend:v2
 kubectl rollout status deploy/frontend
+kubectl get rs
 ```
+
+v2는 연습용 태그라 화면은 그대로다. 교체 과정은 `kubectl get rs`에서 두 ReplicaSet의 개수가 엇갈려 바뀌는 것으로 본다.
 
 ### 3. 롤백
 
