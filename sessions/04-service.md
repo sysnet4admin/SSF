@@ -33,6 +33,8 @@ frontend의 nginx는 `/api` 요청을 `backend-service`라는 이름으로 backe
 
 backend는 `replicas: 2`다. 새로고침을 여러 번 하면 podName이 두 Pod 사이에서 바뀐다(부하분산).
 
+`kubectl get endpoints backend-service`로 이름 뒤에 등록된 실제 Pod 주소 목록을 볼 수 있다. Pod가 바뀌면 이 목록이 자동으로 갱신된다.
+
 ## 확인
 
 `result-templates/verify-loadbalancing.md`를 따라 확인한다.
