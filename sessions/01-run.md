@@ -45,14 +45,24 @@ AI에게 "클러스터 만들어줘"라고 요청하거나 직접 실행한다.
 ./gke/connect-cluster.sh
 ```
 
-### 2. frontend 배포
+### 2. 첫 kubectl 명령: 노드 확인
+
+```bash
+kubectl get nodes
+```
+
+노드 2개가 Ready로 보이면 클러스터가 준비된 것이다. 오늘 직접 치는 명령은 이것 하나다.
+
+### 3. frontend 배포 (AI에게 맡긴다)
+
+AI에게 "frontend 배포해줘"라고 요청한다. AI가 실행하는 명령은 아래와 같다. 직접 치는 것은 2회차에서 해본다.
 
 ```bash
 kubectl apply -f k8s/frontend-deployment.yaml
 kubectl apply -f k8s/frontend-service.yaml
 ```
 
-### 3. 접속
+### 4. 접속
 
 ```bash
 kubectl get svc frontend-service
