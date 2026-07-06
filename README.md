@@ -15,7 +15,7 @@
 | 1 | 실행 | 부트스트랩, 클러스터 생성, frontend 배포 | [01-run.md](sessions/01-run.md) |
 | 2 | 이해 | Pod, 선언적 모델 | [02-pod.md](sessions/02-pod.md) |
 | 3 | 관리 | ReplicaSet, Deployment(롤링/롤백) | [03-deployment.md](sessions/03-deployment.md) |
-| 4 | 연결 | Service(LoadBalancer/ClusterIP), backend 합류 | [04-service.md](sessions/04-service.md) |
+| 4 | 연결 | Service(LoadBalancer/ClusterIP), backend 추가 | [04-service.md](sessions/04-service.md) |
 | 5 | 통합 | ConfigMap(Git), Secret(클러스터에 따로) | [05-config-secret.md](sessions/05-config-secret.md) |
 | 6 | CI | fork, push, Actions 빌드, 내 이미지 전환 | [06-ci.md](sessions/06-ci.md) |
 | 7 | CD | ArgoCD 설치, App 등록, replicas push, reconcile | [07-cd.md](sessions/07-cd.md) |

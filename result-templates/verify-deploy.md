@@ -25,7 +25,7 @@ kubectl get svc frontend-service
 `EXTERNAL-IP`를 브라우저 주소창에 입력한다.
 
 - 기대: 화면에 메시지와 응답한 Pod 이름(podName)이 보인다.
-- 참고: 1회차에는 backend가 아직 없어 "요청 실패"가 정상이다. 메시지와 podName은 backend가 합류하는 4회차부터 보인다.
+- 참고: 1회차에는 backend가 아직 없어 "요청 실패"가 정상이다. 메시지와 podName은 backend를 추가하는 4회차부터 보인다.
 
 ## 점검 질문
 
