@@ -44,6 +44,8 @@ kubectl exec deploy/backend -- printenv MESSAGE
 kubectl exec deploy/backend -- printenv API_KEY
 ```
 
+참고: `kubectl get secret app-secret -o yaml`로 보면 값이 base64로 보인다. 암호화가 아니라 인코딩이며, 실제 보호는 접근 권한이 담당한다.
+
 ## 핵심 규칙
 
 비밀을 코드나 Git에 박지 않는다. Secret은 항상 클러스터에 따로 둔다.
