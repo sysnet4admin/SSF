@@ -2,8 +2,7 @@
 
 ## 전제
 
-- `bootstrap/windows-bootstrap.ps1`로 도구 설치와 `gcloud auth login`을 마쳤다.
-- `gke/` 안 세 스크립트(create, connect, delete) 상단의 `PROJECT_ID`를 본인 값으로 채웠다.
+- `bootstrap/windows-bootstrap.ps1`을 완료했다(도구 설치, gcloud 로그인, fork clone, `gke/` 스크립트 PROJECT_ID 주입까지 자동으로 끝난다).
 
 ## 실행
 

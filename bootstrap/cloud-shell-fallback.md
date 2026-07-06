@@ -25,11 +25,19 @@ git clone https://github.com/본인계정/SSF.git
 cd SSF
 ```
 
-## 4. 이후 진행
+## 4. gke 스크립트에 PROJECT_ID 채우기
+
+Windows 부트스트랩이 자동으로 해 주는 단계입니다. Cloud Shell에서는 직접 채웁니다.
+
+```bash
+sed -i "s/__YOUR_PROJECT_ID__/본인프로젝트ID/" gke/*.sh
+```
+
+## 5. 이후 진행
 
 이후 회차별 실습은 로컬과 동일하게 `sessions/` 가이드를 따릅니다. 클러스터 생성, 연결, 배포 명령이 모두 Cloud Shell에서 동작합니다.
 
-## 5. GitHub 인증 (6회차부터 필요)
+## 6. GitHub 인증 (6회차부터 필요)
 
 6회차부터 본인 저장소로 push 합니다. Cloud Shell에는 GitHub 자격 증명이 저장되어 있지 않으므로, push 전에 Personal Access Token을 만들어 두거나 `gh auth login`으로 인증합니다.
 
