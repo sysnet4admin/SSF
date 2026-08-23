@@ -23,9 +23,18 @@ kubectl -n argocd rollout status deploy/argocd-server --timeout=180s
 
 echo ""
 echo "=== 접속 정보 ==="
-echo "UI 주소(공인 IP 발급까지 잠시 걸립니다):"
-echo "  kubectl get svc argocd-server -n argocd"
-echo ""
-echo "아이디: admin"
-echo "초기 비밀번호:"
-echo "  kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d; echo"
+IP=$(kubectl -n argocd get svc argocd-server -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+if [ -z "$IP" ]; then
+  echo "UI 주소: 공인 IP를 발급받는 중입니다. 잠시 뒤 아래로 확인합니다."
+  echo "  kubectl get svc argocd-server -n argocd"
+else
+  echo "UI 주소: http://$IP"
+fi
+
+ENCODED=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' 2>/dev/null)
+if [ -z "$ENCODED" ]; then
+  echo "초기 비밀번호: 아직 만들어지지 않았습니다. 잠시 뒤 다시 실행합니다."
+else
+  echo "아이디: admin"
+  echo "초기 비밀번호: $(echo "$ENCODED" | base64 -d)"
+fi

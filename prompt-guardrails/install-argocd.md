@@ -4,9 +4,11 @@
 
 저장소 루트(`SSF/`)에서 실행한다.
 
-```bash
-./argocd/install.sh
+```powershell
+.\argocd\install.ps1
 ```
+
+macOS나 리눅스라면 `./argocd/install.sh`를 쓴다.
 
 설치가 끝나면 UI 주소와 초기 비밀번호 확인 명령이 출력된다.
 

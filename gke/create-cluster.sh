@@ -26,4 +26,4 @@ echo "=== 클러스터 생성 완료 ==="
 gcloud container clusters list
 echo ""
 echo "다음 명령으로 클러스터에 연결합니다:"
-echo "  ./connect-cluster.sh"
+echo "  ./gke/connect-cluster.sh"
