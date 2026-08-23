@@ -1,4 +1,4 @@
-# 확인: podName 회전(부하분산, 스케일, reconcile)
+# 확인: 응답하는 Pod가 번갈아 바뀌는 것(부하분산, 스케일, reconcile)
 
 같은 앱이 여러 Pod로 떠 있을 때, 요청이 여러 Pod에 나뉘어 가는 것을 눈으로 확인한다.
 
@@ -10,7 +10,7 @@ kubectl get pods -l app=backend
 
 - 기대: `replicas: 2`이므로 backend Pod가 2개 보인다.
 
-## 2. 화면에서 podName 회전 확인
+## 2. 화면에서 podName 변화 확인
 
 브라우저에서 새로고침 버튼을 여러 번 누른다. 주소는 1회차와 같다. 주소를 다시 열어야 하면
 아래로 출력해 누른다.
