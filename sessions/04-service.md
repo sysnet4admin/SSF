@@ -33,7 +33,19 @@ frontend의 nginx는 `/api` 요청을 `backend-service`라는 이름으로 backe
 
 backend는 `replicas: 2`다. 새로고침을 여러 번 하면 podName이 두 Pod 사이에서 바뀐다(부하분산).
 
-`kubectl get endpoints backend-service`로 이름 뒤에 등록된 실제 Pod 주소 목록을 볼 수 있다. Pod가 바뀌면 이 목록이 자동으로 갱신된다.
+이름 뒤에 등록된 실제 Pod 주소 목록은 `describe`로 본다. Pod가 바뀌면 이 목록이 자동으로 갱신된다.
+
+```bash
+kubectl describe svc backend-service
+```
+
+```
+Selector:    app=backend
+Type:        ClusterIP
+Endpoints:   10.8.0.19:8080,10.8.1.24:8080
+```
+
+`Selector`가 고르는 Pod들의 주소가 `Endpoints`에 모인다. 이것이 "이름 뒤의 실제 Pod들"이다.
 
 ## 확인
 
