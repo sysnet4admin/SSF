@@ -20,6 +20,9 @@ spec:
         - name: backend
           # 1~5회차: 강사 사전 빌드 이미지. 6회차에 본인 fork 이미지로 교체합니다.
           image: ghcr.io/sysnet4admin/ssf15-backend:v1
+          # 같은 :v1 태그로 다시 빌드해도 새 이미지를 받아오게 합니다.
+          # 기본값(IfNotPresent)이면 노드에 캐시된 옛 이미지를 계속 씁니다(6회차).
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           # /healthz로 Pod의 준비(readiness)와 생존(liveness)을 확인합니다.
