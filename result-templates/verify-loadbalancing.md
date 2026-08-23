@@ -12,7 +12,12 @@ kubectl get pods -l app=backend
 
 ## 2. 화면에서 podName 회전 확인
 
-브라우저에서 새로고침 버튼을 여러 번 누른다.
+브라우저에서 새로고침 버튼을 여러 번 누른다. 주소는 1회차와 같다. 주소를 다시 열어야 하면
+아래로 출력해 누른다.
+
+```powershell
+"http://" + (kubectl get svc frontend-service -o "jsonpath={.status.loadBalancer.ingress[0].ip}")
+```
 
 - 기대: 응답한 Pod 이름(podName)이 두 Pod 사이에서 바뀐다.
 - 의미: 요청이 한 Pod에 몰리지 않고 나뉘어 처리된다(부하분산).
