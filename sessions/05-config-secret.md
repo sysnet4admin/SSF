@@ -25,15 +25,20 @@ kubectl rollout restart deploy/backend
 
 화면 메시지가 코드 기본값에서 ConfigMap 값("... (ConfigMap 적용됨)")으로 바뀐다. `k8s/configmap.yaml`의 `MESSAGE`를 다른 값으로 바꿔 다시 적용하면 또 바뀐다.
 
+`rollout status`가 끝났다고 나와도 옛 Pod가 몇 초 더 종료 중이라 요청을 받는다.
+새로고침했는데 옛 문구가 보이면 10초쯤 뒤에 한 번 더 새로고침한다.
+
 ### 2. Secret 생성 (Git에 두지 않는다)
 
 `prompt-guardrails/create-secret.md`를 따른다.
 
 ```bash
-kubectl create secret generic app-secret \
-  --from-literal=api-key='demo-secret-value'
+kubectl create secret generic app-secret --from-literal=api-key='demo-secret-value'
 kubectl rollout restart deploy/backend
 ```
+
+> 첫 줄은 한 줄로 입력한다. 줄 끝에 `\`를 넣어 두 줄로 나누는 방식은 PowerShell에서
+> 동작하지 않는다. 오류만 나고 Secret이 만들어지지 않는다.
 
 ## 확인
 
