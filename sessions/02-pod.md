@@ -23,7 +23,7 @@
 
 ### 1. 첫 배포: AI에게 맡긴다
 
-저장소 폴더에서 연 Claude Code 창에 "frontend 배포해줘"라고 요청한다. AI가 실행하는 명령은
+오른쪽 Claude Code 화면에 "frontend 배포해줘"라고 요청한다(`Alt+방향키`로 이동). AI가 실행하는 명령은
 아래와 같다. 직접 치는 것은 잠시 뒤에 해본다.
 
 ```bash
@@ -37,6 +37,8 @@ kubectl apply -f k8s/frontend-service.yaml
 데이터는 backend가 줘야 하는데 아직 없기 때문이다. backend는 4회차에 추가한다.
 
 ### 2. 직접 배포해 보기 (방금 AI가 한 것)
+
+여기부터는 왼쪽 화면에서 직접 친다. 확인하는 명령을 손으로 쳐 보는 것이 오늘의 목적이다.
 
 ```bash
 kubectl delete deployment frontend    # 선언 자체를 지운다
