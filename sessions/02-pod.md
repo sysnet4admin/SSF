@@ -42,7 +42,8 @@ kubectl apply -f k8s/frontend-service.yaml
 
 ```bash
 kubectl delete deployment frontend    # 선언 자체를 지운다
-kubectl get pods                      # Pod가 사라지고, 되살아나지 않는다
+kubectl get pods                      # Terminating을 거쳐 사라진다
+kubectl get pods                      # 한 번 더 친다. 목록이 비어 있고 되살아나지 않는다
 kubectl apply -f k8s/frontend-deployment.yaml
 kubectl get pods                      # 다시 생긴다. 브라우저 새로고침으로 확인
 ```
