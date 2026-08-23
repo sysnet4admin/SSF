@@ -34,7 +34,20 @@ kubectl rollout status deploy/frontend
 kubectl get rs
 ```
 
-v2는 연습용 태그라 화면은 그대로다. 교체 과정은 `kubectl get rs`에서 두 ReplicaSet의 개수가 엇갈려 바뀌는 것으로 본다.
+v2는 연습용 태그라 화면은 그대로다.
+
+교체가 조금씩 일어나는 것은 `kubectl rollout status`가 찍는 줄에서 보인다.
+
+```
+Waiting for deployment "frontend" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "frontend" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "frontend" rollout to finish: 1 old replicas are pending termination...
+deployment "frontend" successfully rolled out
+```
+
+전체 교체는 몇 초 만에 끝난다. 그래서 `kubectl get rs`를 나중에 쳐도 중간 과정은 보이지 않고
+끝난 상태(새 ReplicaSet 3개, 옛 ReplicaSet 0개)만 남는다. 중간을 직접 보고 싶으면 왼쪽 창에서
+`kubectl get rs -w`를 걸어 두고, 오른쪽 AI 창에서 위의 `set image`를 실행시킨다.
 
 ### 3. 롤백
 
@@ -44,6 +57,10 @@ kubectl get deploy frontend -o jsonpath='{.spec.template.spec.containers[0].imag
 ```
 
 이미지가 v1로 돌아온 것을 확인한다.
+
+> `rollout undo`를 치면 `last-applied-configuration` 주석이 어쩌고 하는 노란 경고가 함께 나온다.
+> 이 실습에서는 그냥 넘어가도 된다. 처음에 `apply`로 만든 Deployment를 `undo`로 되돌렸기 때문에
+> 나오는 안내이고, 뒤 회차의 `apply`도 정상으로 동작한다.
 
 ### 4. 원복
 
@@ -55,5 +72,5 @@ kubectl scale deploy/frontend --replicas=1
 
 ## 확인
 
-- `kubectl get pods`로 교체가 한 번에가 아니라 조금씩 일어나는 것을 확인한다.
+- `kubectl rollout status`의 출력에서 교체가 한 번에가 아니라 조금씩 일어나는 것을 확인한다.
 - 롤백 후 이미지가 v1로 돌아왔는지 확인한다.
