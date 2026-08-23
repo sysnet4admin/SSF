@@ -20,7 +20,7 @@ export default function App() {
   return (
     <div style={styles.page}>
       <div style={styles.card}>
-        <h1 style={styles.title}>SSF 15기 (CI 검증)</h1>
+        <h1 style={styles.title}>SSF 15기</h1>
 
         {error && <p style={styles.error}>요청 실패: {error}</p>}
 
