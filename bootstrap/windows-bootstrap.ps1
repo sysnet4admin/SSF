@@ -1,4 +1,4 @@
-# SSF 15기 Windows 부트스트랩
+﻿# SSF 15기 Windows 부트스트랩
 # 실습 도구 설치와 GCP 설정을 한 번에 끝냅니다.
 # 하는 일: 도구 설치(Git, gcloud, kubectl, Claude Code), gcloud 로그인과 프로젝트 설정,
 #          gke 스크립트에 PROJECT_ID 주입 (저장소 밖에서 실행하면 fork clone까지)
