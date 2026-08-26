@@ -41,6 +41,17 @@ winget install --id Google.CloudSDK -e --source winget --accept-package-agreemen
 Update-PathFromRegistry
 
 Write-Host "[3/6] kubectl 및 GKE 인증 플러그인 설치"
+# gcloud는 설치 폴더 안에 자기 전용 Python을 들고 다니는데,
+# 그 Python으로는 비대화형(--quiet) 설치를 거부합니다.
+# Python을 밖으로 복사해 CLOUDSDK_PYTHON에 지정하면 통과합니다.
+if (-not $env:CLOUDSDK_PYTHON) {
+    $bundledPython = (gcloud components copy-bundled-python | Select-Object -Last 1)
+    if ($bundledPython) { $bundledPython = $bundledPython.Trim() }
+    if ($bundledPython -and (Test-Path $bundledPython)) {
+        $env:CLOUDSDK_PYTHON = $bundledPython
+    }
+    $global:LASTEXITCODE = 0
+}
 gcloud components install kubectl gke-gcloud-auth-plugin --quiet
 Assert-Ok "kubectl 설치"
 
