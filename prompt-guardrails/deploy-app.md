@@ -9,7 +9,7 @@
 회차에 따라 필요한 부분만 적용한다. 전체를 한 번에 올리려면 폴더째 적용한다.
 
 ```bash
-# frontend만 (1회차)
+# frontend만 (2회차)
 kubectl apply -f k8s/frontend-deployment.yaml
 kubectl apply -f k8s/frontend-service.yaml
 
