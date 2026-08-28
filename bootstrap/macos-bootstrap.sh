@@ -58,15 +58,40 @@ if [ "$DRY_RUN" = "1" ]; then
   say ""
 fi
 
+say "==================================================="
+say " SSF 15기 실습 환경 준비 (macOS)"
+say "==================================================="
+say ""
+say "여섯 단계로 진행합니다. 전체 5분에서 10분쯤 걸립니다."
+say ""
+say "  1. Git 확인"
+say "  2. Google Cloud SDK 설치   (gcloud 명령)"
+say "  3. kubectl 설치            (쿠버네티스 명령)"
+say "  4. Claude Code 설치        (AI 튜터)"
+say "  5. 구글 로그인과 프로젝트 선택"
+say "  6. 실습 저장소 준비"
+say ""
+say "이미 설치된 것은 건너뜁니다. 중간에 두 번 입력을 받습니다."
+say "  하나는 브라우저 로그인이고, 다른 하나는 프로젝트 선택입니다."
+say ""
+say "중간에 멈추면 그 자리에서 무엇을 하면 되는지 알려 드립니다."
+say "다시 실행해도 괜찮습니다. 이미 된 부분은 건너뜁니다."
+say ""
+
 # ---------------------------------------------------------------- 1. Git
 say "[1/6] Git 확인"
+say "  저장소를 내려받고 6회차에 push할 때 씁니다."
 if have git; then
   say "  이미 설치되어 있습니다: $(git --version)"
 else
   warn "  Git이 없습니다."
-  say "  아래 명령을 실행하면 설치 창이 뜹니다. 설치를 마친 뒤 이 스크립트를 다시 실행해 주세요."
+  say ""
+  say "  아래 명령을 실행하면 설치 창이 뜹니다. 창에서 설치를 누르고 끝날 때까지 기다립니다."
+  say "  몇 분 걸릴 수 있습니다."
   say ""
   say "    xcode-select --install"
+  say ""
+  say "  설치가 끝나면 이 스크립트를 다시 실행해 주세요. 여기서부터 이어집니다."
   say ""
   if [ "$DRY_RUN" != "1" ]; then
     exit 1
@@ -74,7 +99,9 @@ else
 fi
 
 # ------------------------------------------------------------- 2. gcloud
+say ""
 say "[2/6] Google Cloud SDK 설치"
+say "  GCP를 명령으로 다루는 도구입니다. 클러스터를 만들 때 씁니다."
 if have gcloud; then
   say "  이미 설치되어 있습니다: $(command -v gcloud)"
 else
@@ -92,11 +119,15 @@ else
 fi
 
 # ------------------------------------------------- 3. kubectl과 인증 플러그인
+say ""
 say "[3/6] kubectl 및 GKE 인증 플러그인 설치"
+say "  쿠버네티스를 명령으로 다루는 도구입니다. 1분쯤 걸립니다."
 run gcloud components install kubectl gke-gcloud-auth-plugin --quiet
 
 # -------------------------------------------------------- 4. Claude Code
+say ""
 say "[4/6] Claude Code 설치"
+say "  터미널에서 한국어로 지시하는 AI 튜터입니다."
 if have claude; then
   say "  이미 설치되어 있습니다: $(command -v claude)"
 else
@@ -112,6 +143,7 @@ else
 fi
 
 # ------------------------------------------- 5. 로그인과 프로젝트 설정
+say ""
 say "[5/6] Google Cloud 로그인과 프로젝트 설정"
 say ""
 say "  (1) 로그인"
@@ -153,8 +185,12 @@ else
   fi
   # 오타가 나면 클러스터를 만들 때까지 드러나지 않습니다. 여기서 확인합니다.
   if ! gcloud projects describe "$PROJECT_ID" --format="value(projectId)" >/dev/null 2>&1; then
+    say ""
     say "${RED}프로젝트를 찾지 못했습니다: $PROJECT_ID${OFF}"
-    die "위 표의 PROJECT_ID 열 값과 같은지 확인한 뒤 다시 실행해 주세요."
+    say "위 표의 PROJECT_ID 열에 있는 값과 같은지 확인해 주세요."
+    say "NAME(표시 이름)이나 클러스터 이름(ssf15-cluster)이 아닙니다."
+    say ""
+    die "확인한 뒤 이 스크립트를 다시 실행하면 됩니다. 앞 단계는 건너뜁니다."
   fi
   gcloud config set project "$PROJECT_ID"
 
@@ -163,14 +199,20 @@ else
   say ""
   say "  (3) GKE API 확인 (처음이면 1분쯤 걸립니다)"
   if ! gcloud services enable container.googleapis.com; then
+    say ""
     say "${RED}GKE API를 켜지 못했습니다.${OFF}"
     say "가장 흔한 원인은 이 프로젝트에 결제 계정이 연결되지 않은 것입니다."
-    die "GCP 콘솔의 결제 메뉴에서 연결한 뒤 다시 실행해 주세요."
+    say "https://console.cloud.google.com/billing 에서 이 프로젝트에 결제 계정을 연결해 주세요."
+    say "무료 체험 크레딧이 있어도 연결은 따로 해야 합니다."
+    say ""
+    die "연결한 뒤 이 스크립트를 다시 실행하면 됩니다. 앞 단계는 건너뜁니다."
   fi
 fi
 
 # ------------------------------------------------------- 6. 저장소 준비
+say ""
 say "[6/6] 실습 저장소 준비"
+say "  gke/ 스크립트에 프로젝트 ID를 채워 넣습니다."
 # 저장소 안(bootstrap/)에서 실행했으면 그 저장소를 그대로 쓰고, 아니면 fork를 clone 합니다.
 SRC="${BASH_SOURCE[0]:-}"
 REPO_DIR=""
@@ -193,8 +235,14 @@ else
   [ -n "$GH_ID" ] || die "아이디가 비어 있습니다."
   REPO_DIR="$HOME/SSF"
   if [ -e "$REPO_DIR" ]; then
+    say ""
     say "${RED}이미 폴더가 있습니다: $REPO_DIR${OFF}"
-    die "그 폴더로 이동해 이어서 진행하거나, 폴더를 옮긴 뒤 다시 실행해 주세요."
+    say "이전에 받아 둔 것이면 그 폴더로 이동해 이어서 진행하시면 됩니다."
+    say ""
+    say "    cd $REPO_DIR"
+    say "    bash bootstrap/macos-bootstrap.sh"
+    say ""
+    die "다시 받고 싶으면 그 폴더의 이름을 바꾼 뒤 이 스크립트를 다시 실행해 주세요."
   fi
   git clone "https://github.com/$GH_ID/SSF.git" "$REPO_DIR"
 fi
