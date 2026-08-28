@@ -1,4 +1,4 @@
-# GKE 클러스터 생성 (Standard 모드 + Spot 노드)
+﻿# GKE 클러스터 생성 (Standard 모드 + Spot 노드)
 # 윈도우 터미널의 PowerShell 탭에서 실행합니다.
 #   .\gke\create-cluster.ps1
 

@@ -1,4 +1,4 @@
-# GKE 클러스터 연결 (kubeconfig 설정)
+﻿# GKE 클러스터 연결 (kubeconfig 설정)
 # 윈도우 터미널의 PowerShell 탭에서 실행합니다.
 #   .\gke\connect-cluster.ps1
 

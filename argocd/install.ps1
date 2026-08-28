@@ -1,4 +1,4 @@
-# ArgoCD 설치 (학생이 실행하는 제공 명령)
+﻿# ArgoCD 설치 (학생이 실행하는 제공 명령)
 # 윈도우 터미널의 PowerShell 탭에서 실행합니다.
 #   .\argocd\install.ps1
 #

@@ -1,4 +1,4 @@
-# GKE 클러스터 삭제 (수업 종료 후 비용 정리)
+﻿# GKE 클러스터 삭제 (수업 종료 후 비용 정리)
 # 윈도우 터미널의 PowerShell 탭에서 실행합니다.
 #   .\gke\delete-cluster.ps1
 

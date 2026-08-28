@@ -176,11 +176,20 @@ if ($localRepo -and (Test-Path (Join-Path $localRepo "gke"))) {
 }
 
 # gke 스크립트의 PROJECT_ID 자리표시자를 방금 입력한 값으로 채웁니다.
-# UTF-8(BOM 없음)로 다시 써서 셸 스크립트가 깨지지 않게 합니다.
-$utf8 = New-Object System.Text.UTF8Encoding($false)
+# 확장자에 따라 인코딩을 다르게 씁니다.
+#   .sh  : BOM이 있으면 셸이 첫 줄(#!)을 못 읽습니다. BOM 없이 씁니다.
+#   .ps1 : BOM이 없으면 Windows PowerShell 5.1이 한글을 시스템 코드페이지(CP949)로
+#          잘못 읽어 화면 문구가 깨집니다. BOM을 붙여서 씁니다.
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+$utf8Bom   = New-Object System.Text.UTF8Encoding($true)
 Get-ChildItem (Join-Path $repoDir "gke") -Include *.sh, *.ps1 -Recurse | ForEach-Object {
-  $text = [System.IO.File]::ReadAllText($_.FullName, $utf8)
-  [System.IO.File]::WriteAllText($_.FullName, $text.Replace("__YOUR_PROJECT_ID__", $projectId), $utf8)
+  $text = [System.IO.File]::ReadAllText($_.FullName)
+  $text = $text.Replace("__YOUR_PROJECT_ID__", $projectId)
+  if ($_.Extension -eq ".ps1") {
+    [System.IO.File]::WriteAllText($_.FullName, $text, $utf8Bom)
+  } else {
+    [System.IO.File]::WriteAllText($_.FullName, $text, $utf8NoBom)
+  }
 }
 
 Write-Host ""
