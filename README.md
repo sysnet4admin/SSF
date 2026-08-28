@@ -12,8 +12,8 @@
 
 | 회차 | 주제 | 다루는 부분 | 가이드 |
 |------|------|-------------|--------|
-| 1 | 실행 | 부트스트랩, 클러스터 생성, frontend 배포 | [01-run.md](sessions/01-run.md) |
-| 2 | 이해 | Pod, 선언적 모델 | [02-pod.md](sessions/02-pod.md) |
+| 1 | 실행 | 부트스트랩, 클러스터 생성, 노드 확인 | [01-run.md](sessions/01-run.md) |
+| 2 | 이해 | frontend 첫 배포, Pod, 선언적 모델 | [02-pod.md](sessions/02-pod.md) |
 | 3 | 관리 | ReplicaSet, Deployment(롤링/롤백) | [03-deployment.md](sessions/03-deployment.md) |
 | 4 | 연결 | Service(LoadBalancer/ClusterIP), backend 추가 | [04-service.md](sessions/04-service.md) |
 | 5 | 통합 | ConfigMap(Git), Secret(클러스터에 따로) | [05-config-secret.md](sessions/05-config-secret.md) |
