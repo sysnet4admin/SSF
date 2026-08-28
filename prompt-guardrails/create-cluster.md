@@ -2,7 +2,7 @@
 
 ## 전제
 
-- `bootstrap/windows-bootstrap.ps1`을 완료했다(도구 설치, gcloud 로그인, `gke/` 스크립트 PROJECT_ID 주입까지 자동으로 끝난다).
+- 부트스트랩을 완료했다. 윈도우는 `bootstrap/windows-bootstrap.ps1`, macOS는 `bootstrap/macos-bootstrap.sh`다. 도구 설치, gcloud 로그인, 프로젝트 설정, GKE API 활성화, `gke/` 스크립트 PROJECT_ID 주입까지 자동으로 끝난다.
 
 ## 실행
 

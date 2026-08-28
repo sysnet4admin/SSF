@@ -33,7 +33,7 @@ SSF/
 ├── .github/workflows/    # CI (GitHub Actions, GHCR public)
 ├── argocd/               # CD (ArgoCD 설치, Application)
 ├── gke/                  # 클러스터 생성/연결/삭제
-├── bootstrap/            # Windows 부트스트랩, Cloud Shell 폴백
+├── bootstrap/            # 부트스트랩 (Windows, macOS), Cloud Shell 폴백
 ├── sessions/             # 회차별 가이드
 ├── CLAUDE.md             # AI 튜터 안내 규칙
 ├── AGENTS.md             # 위 규칙을 가리키는 입구 (Codex 등)

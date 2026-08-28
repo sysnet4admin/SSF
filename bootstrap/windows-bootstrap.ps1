@@ -61,19 +61,57 @@ irm https://claude.ai/install.ps1 | iex
 # 이 창에서 바로 claude 를 쓰려면 PATH를 다시 읽어야 합니다.
 Update-PathFromRegistry
 
-Write-Host "[5/6] Google Cloud 로그인 및 프로젝트 설정"
+Write-Host "[5/6] Google Cloud 로그인과 프로젝트 설정"
+Write-Host ""
+Write-Host "  (1) 로그인"
+Write-Host "      브라우저가 열립니다. 구글 계정으로 로그인하면 이 컴퓨터의 gcloud가 그 계정 권한을 갖습니다."
 gcloud auth login
-# 프로젝트 ID는 gcloud projects list 로 확인할 수 있습니다.
-$projectId = Read-Host "GCP 프로젝트 ID 입력"
+
+Write-Host ""
+Write-Host "  (2) 프로젝트 선택"
+Write-Host "      프로젝트는 클러스터와 IP 같은 자원을 담는 작업 공간입니다. 비용도 여기 단위로 나옵니다."
+Write-Host ""
+
+# 목록을 먼저 보여 줍니다. 어디서 값을 가져오는지 모르는 학생이 가장 많이 막히는 자리입니다.
+gcloud projects list --format="table(projectId, name)"
+Write-Host ""
+
+$projectIds = @(gcloud projects list --format="value(projectId)" | Where-Object { $_ -ne "" })
+if ($projectIds.Count -eq 1) {
+    # 실습 계정은 대개 프로젝트가 하나입니다. 그대로 쓰거나 다른 값을 칠 수 있게 합니다.
+    $defaultId = $projectIds[0]
+    $projectId = Read-Host "프로젝트 ID [기본값 $defaultId]"
+    if ([string]::IsNullOrWhiteSpace($projectId)) { $projectId = $defaultId }
+} else {
+    Write-Host "위 표의 PROJECT_ID 열에 있는 값을 그대로 입력합니다. NAME(표시 이름)이 아닙니다."
+    $projectId = Read-Host "GCP 프로젝트 ID 입력"
+}
+
+if ([string]::IsNullOrWhiteSpace($projectId)) {
+    Write-Host "프로젝트 ID가 비어 있습니다." -ForegroundColor Red
+    exit 1
+}
 # 오타가 나면 클러스터를 만들 때까지 드러나지 않습니다. 여기서 확인합니다.
 gcloud projects describe $projectId --format="value(projectId)" *> $null
 if ($LASTEXITCODE -ne 0) {
     Write-Host "프로젝트를 찾지 못했습니다: $projectId" -ForegroundColor Red
-    Write-Host "gcloud projects list 로 확인한 뒤 다시 실행해 주세요."
+    Write-Host "위 표의 PROJECT_ID 열 값과 같은지 확인한 뒤 다시 실행해 주세요."
     exit 1
 }
 gcloud config set project $projectId
 Assert-Ok "프로젝트 설정"
+
+# GKE API가 꺼져 있으면 클러스터를 만들 때 실패합니다. 여기서 켜 둡니다.
+# 이미 켜져 있으면 아무 일도 하지 않습니다. 결제가 연결되지 않았다면 여기서 그 이유가 나옵니다.
+Write-Host ""
+Write-Host "  (3) GKE API 확인 (처음이면 1분쯤 걸립니다)"
+gcloud services enable container.googleapis.com
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "GKE API를 켜지 못했습니다." -ForegroundColor Red
+    Write-Host "가장 흔한 원인은 이 프로젝트에 결제 계정이 연결되지 않은 것입니다."
+    Write-Host "GCP 콘솔의 결제 메뉴에서 연결한 뒤 다시 실행해 주세요."
+    exit 1
+}
 
 Write-Host "[6/6] 실습 저장소 준비"
 # 저장소 안(bootstrap/)에서 실행했으면 그 저장소를 그대로 사용하고, 아니면 fork를 clone 합니다.

@@ -12,7 +12,9 @@
 
 1. GCP 프로젝트가 있고 결제가 활성화되어 있는지 확인한다. 프로젝트 ID를 메모해 둔다.
 2. 저장소(`sysnet4admin/SSF`)를 본인 계정으로 fork 한다.
-3. 본인 fork를 clone 하고, 저장소 안에서 부트스트랩을 실행한다. 도구 설치, gcloud 로그인, `gke/` 스크립트의 PROJECT_ID 주입까지 한 번에 끝난다.
+3. 본인 fork를 clone 하고, 저장소 안에서 부트스트랩을 실행한다. 도구 설치, gcloud 로그인, 프로젝트 설정, `gke/` 스크립트의 PROJECT_ID 주입까지 한 번에 끝난다.
+
+   윈도우는 이렇게 한다.
 
    ```powershell
    git clone https://github.com/본인계정/SSF.git
@@ -21,8 +23,24 @@
    .\bootstrap\windows-bootstrap.ps1
    ```
 
-   - Git이 아직 없다면 clone 대신 한 줄로 실행한다(설치 후 fork를 자동으로 clone 한다): `irm https://raw.githubusercontent.com/sysnet4admin/SSF/main/bootstrap/windows-bootstrap.ps1 | iex`
-   - 설치가 어려우면 `bootstrap/cloud-shell-fallback.md`로 동일하게 진행한다.
+   macOS는 이렇게 한다. 하는 일은 같다.
+
+   ```bash
+   git clone https://github.com/본인계정/SSF.git
+   cd SSF
+   bash bootstrap/macos-bootstrap.sh
+   ```
+
+   - Git이 아직 없다면 clone 대신 한 줄로 실행한다(설치 후 fork를 자동으로 clone 한다).
+     - 윈도우: `irm https://raw.githubusercontent.com/sysnet4admin/SSF/main/bootstrap/windows-bootstrap.ps1 | iex`
+     - macOS: `curl -fsSL https://raw.githubusercontent.com/sysnet4admin/SSF/main/bootstrap/macos-bootstrap.sh | bash`
+   - 무엇을 하는지 먼저 보고 싶으면 macOS에서 `bash bootstrap/macos-bootstrap.sh --dry-run`을 실행한다. 아무것도 설치하지 않고 할 일만 보여 준다.
+   - 로컬 설치가 끝내 안 되면 `bootstrap/cloud-shell-fallback.md`로 동일하게 진행한다.
+
+   부트스트랩 중간에 두 가지를 묻는다. 무엇을 묻는지 미리 알아 두면 헤매지 않는다.
+
+   - **로그인**: 브라우저가 열린다. 구글 계정으로 로그인하면 이 컴퓨터의 gcloud가 그 계정 권한을 갖는다.
+   - **프로젝트**: 쓸 수 있는 프로젝트 목록을 표로 보여 준다. `PROJECT_ID` 열의 값을 그대로 입력한다. 옆의 `NAME`(표시 이름)이나 클러스터 이름(`ssf15-cluster`)이 아니다. 프로젝트가 하나뿐이면 엔터만 쳐도 그것으로 정해진다.
 4. Claude Code를 실행해 로그인한다(처음 한 번, 브라우저 창이 열린다). 로그인 후 "안녕하세요"라고 입력해 응답이 오면 준비 완료다.
 
    ```powershell
@@ -64,7 +82,12 @@ macOS나 리눅스라면 같은 이름의 `.sh`를 쓴다.
 ./gke/connect-cluster.sh
 ```
 
-connect-cluster.sh는 접속 정보를 kubeconfig 파일(`~/.kube/config`)에 저장한다. 이후 kubectl이 이 파일을 보고 방금 만든 클러스터로 명령을 보낸다.
+`connect-cluster`는 접속 정보를 kubeconfig 파일(`~/.kube/config`)에 저장한다. 이후 kubectl이 이 파일을 보고 방금 만든 클러스터로 명령을 보낸다.
+
+> 아까 부트스트랩에서 로그인했는데 왜 또 연결하는지 헷갈릴 수 있다. 둘은 다른 일이다.
+> `gcloud auth login`은 내가 gcloud를 쓸 권한을 받는 것이고, `connect-cluster`는 kubectl이
+> 이 클러스터에 접속할 정보를 파일에 적어 두는 것이다. 사람의 로그인과 도구의 접속 설정이
+> 따로 있다고 보면 된다. 그래서 클러스터를 새로 만들 때마다 연결을 다시 해야 한다.
 
 ### 2. 첫 kubectl 명령: 노드 확인
 
