@@ -2,7 +2,7 @@
 
 ## 이번 시간의 목표
 
-backend에 설정값을 주입한다. 공개해도 되는 값은 ConfigMap으로(Git에 둔다), 숨겨야 하는 값은 Secret으로(클러스터에 따로 둔다) 다룬다.
+backend에 설정값을 주입한다. 공개해도 되는 값은 ConfigMap으로(저장소에 커밋한다), 숨겨야 하는 값은 Secret으로(클러스터에 따로 둔다) 다룬다.
 
 ## 지금 단계
 
@@ -10,8 +10,8 @@ backend에 "설정"이라는 단계를 더한다. 화면 메시지를 ConfigMap�
 
 ## 핵심 개념
 
-- ConfigMap: 비밀 아닌 설정. Git의 `k8s/configmap.yaml`에 둔다.
-- Secret: 비밀값. Git에 두지 않는다. 클러스터에 직접 만들고 Deployment는 참조만 한다.
+- ConfigMap: 비밀 아닌 설정. 저장소의 `k8s/configmap.yaml`에 둔다.
+- Secret: 비밀값. 커밋하지 않는다. 커밋하면 GitHub에 push할 때 그대로 올라가고, 이력에 남아 지워도 되돌릴 수 없다. 클러스터에 직접 만들고 Deployment는 참조만 한다.
 - 자세한 차이는 `decision-guides/configmap-vs-secret.md`를 참조한다.
 
 ## 진행
@@ -28,7 +28,7 @@ kubectl rollout restart deploy/backend
 `rollout status`가 끝났다고 나와도 옛 Pod가 몇 초 더 종료 중이라 요청을 받는다.
 새로고침했는데 옛 문구가 보이면 10초쯤 뒤에 한 번 더 새로고침한다.
 
-### 2. Secret 생성 (Git에 두지 않는다)
+### 2. Secret 생성 (GitHub에 올리지 않는다)
 
 `prompt-guardrails/create-secret.md`를 따른다.
 
@@ -53,4 +53,4 @@ kubectl exec deploy/backend -- printenv API_KEY
 
 ## 핵심 규칙
 
-비밀을 코드나 Git에 박지 않는다. Secret은 항상 클러스터에 따로 둔다.
+비밀을 코드에 박거나 커밋하지 않는다. Secret은 항상 클러스터에 따로 둔다.

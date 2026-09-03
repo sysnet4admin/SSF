@@ -26,14 +26,14 @@
 | 2 | 이해 | frontend 첫 배포, Pod, 선언적 모델 | `sessions/02-pod.md` |
 | 3 | 관리 | ReplicaSet, Deployment(롤링/롤백) | `sessions/03-deployment.md` |
 | 4 | 연결 | Service(LoadBalancer/ClusterIP), backend 추가 | `sessions/04-service.md` |
-| 5 | 통합 | ConfigMap(Git), Secret(클러스터에 따로) | `sessions/05-config-secret.md` |
+| 5 | 통합 | ConfigMap(저장소), Secret(클러스터에 따로) | `sessions/05-config-secret.md` |
 | 6 | CI | fork, push, Actions 빌드, 내 이미지 전환 | `sessions/06-ci.md` |
 | 7 | CD | ArgoCD 설치, App 등록, replicas push, reconcile | `sessions/07-cd.md` |
 
 ## 핵심 규칙 (항상 지킨다)
 
 - 이미지 전략: 1~5회차는 강사 사전 빌드 이미지(`ghcr.io/sysnet4admin/ssf15-frontend:v1`, `ssf15-backend:v1`)를 가리킨다. 6회차에 학생 본인 fork 이미지로 교체한다.
-- Secret 규칙: 비밀값(API 키 등)은 Git에 평문으로 두지 않는다. 5회차에 클러스터에 직접 생성하고 Deployment는 참조만 한다. ConfigMap(비밀 아님)은 Git의 `k8s/`에 둔다.
+- Secret 규칙: 비밀값(API 키 등)은 커밋하지 않는다. 커밋하면 GitHub에 push할 때 그대로 올라가고, 이력에 남아 지워도 되돌릴 수 없다. 5회차에 클러스터에 직접 생성하고 Deployment는 참조만 한다. ConfigMap(비밀 아님)은 저장소의 `k8s/`에 둔다.
 - 변경 지점: `k8s/backend-deployment.yaml`의 `replicas`가 7회차 GitOps 변경 지점이다.
 - 스크립트 인코딩: 한글이 든 `.ps1`은 UTF-8 BOM을 붙인다. BOM이 없으면 Windows PowerShell 5.1이 CP949로 읽어 한글이 깨진다. `.sh`는 BOM을 붙이지 않는다. 셸이 첫 줄 `#!`를 못 읽는다. 스크립트가 파일을 다시 쓸 때도 확장자별로 이 규칙을 지킨다.
 - podName: 응답의 `podName`은 어느 Pod가 응답했는지 보여준다. 부하분산, 스케일, reconcile을 브라우저로 확인하는 핵심이다.

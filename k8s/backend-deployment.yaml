@@ -41,7 +41,7 @@ spec:
             periodSeconds: 10
           # 5회차에서 다룹니다.
           # ConfigMap(MESSAGE)은 Git의 configmap.yaml에서 주입합니다.
-          # Secret(API_KEY)은 Git에 두지 않고 5회차에 클러스터에 직접 생성해 참조만 합니다.
+          # Secret(API_KEY)은 커밋하지 않고 5회차에 클러스터에 직접 생성해 참조만 합니다.
           # optional: true 이므로 ConfigMap/Secret이 아직 없어도 Pod는 정상 기동합니다.
           envFrom:
             - configMapRef:

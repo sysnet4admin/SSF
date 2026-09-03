@@ -2,12 +2,12 @@
 
 ## 핵심 규칙
 
-Secret은 Git에 두지 않는다. 클러스터에 직접 만들고, Deployment는 참조만 한다.
+Secret은 커밋하지 않는다. 커밋하면 GitHub에 push할 때 그대로 올라간다. 클러스터에 직접 만들고, Deployment는 참조만 한다.
 
 ## 실행
 
 ```bash
-# 클러스터에 Secret 직접 생성 (Git에 파일을 만들지 않는다)
+# 클러스터에 Secret 직접 생성 (저장소에 파일을 만들지 않는다)
 kubectl create secret generic app-secret --from-literal=api-key='demo-secret-value'
 ```
 
