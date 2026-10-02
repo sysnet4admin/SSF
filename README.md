@@ -71,3 +71,13 @@ SSF/
 
 - 1~5회차: 강사 사전 빌드 이미지(`ghcr.io/sysnet4admin/ssf15-frontend:v1`, `ssf15-backend:v1`)를 사용합니다.
 - 6회차: 본인 fork에서 빌드한 이미지로 전환합니다.
+
+***
+<p align="center">
+<a href="https://promo.kuberneteslab.dev/ko/">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://promo.kuberneteslab.dev/images/readme/banner-ko-dark.png">
+  <img src="https://promo.kuberneteslab.dev/images/readme/banner-ko-light.png" alt="리눅스 재단 자격증 할인 코드: CKA, CKS, MCPA 등 상시 30%, 더 큰 할인은 눌러서 확인" width="720">
+</picture>
+</a>
+</p>
